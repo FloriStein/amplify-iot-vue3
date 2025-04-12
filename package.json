@@ -1,0 +1,21 @@
+{
+  "name": "amplify-iot-vue3",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@aws-amplify/pubsub": "^6.1.53",
+    "@aws-amplify/ui-vue": "^4.3.1",
+    "aws-amplify": "^6.1.53",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.2.0"
+  }
+}
