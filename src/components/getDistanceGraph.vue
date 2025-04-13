@@ -16,9 +16,10 @@ const loading = ref(true)
 const error = ref(null)
 
 // Konfigurationsvariablen
-const API_KEY = 'glsa_GaGhf7j1QWHbvuMvagcnoSmxPJsEKmFc_1927fb96' // Ersetze durch deinen tatsächlichen API-Schlüssel
-const TIMESTREAM_UID = 'ceindnz3ytf5sc' // Ersetze durch deine tatsächliche Timestream-UID
-const GRAFANA_HOST = 'http://3.124.186.35:3000' // Ersetze durch deinen tatsächlichen Grafana-Host
+const API_KEY = 'glsa_vpYDpZnczc792OpaQr8AaCS1H7bgZjO1_5b8acc2e' // Ersetze durch deinen tatsächlichen API-Schlüssel
+//const API_KEY = 'glsa_GaGhf7j1QWHbvuMvagcnoSmxPJsEKmFc_1927fb96' // Ersetze durch deinen tatsächlichen API-Schlüssel
+const TIMESTREAM_UID = 'aehli3wxgge80c' // Ersetze durch deine tatsächliche Timestream-UID
+const GRAFANA_HOST = 'https://g-36c53baaa0.grafana-workspace.eu-central-1.amazonaws.com' // Ersetze durch deinen tatsächlichen Grafana-Host
 
 // Zeitbereich: letzte 5 Minuten
 const rangeFrom = new Date(Date.now() - 5 * 60 * 1000).toISOString()
@@ -34,27 +35,35 @@ const QUERY = `
 `
 
 const formatTimestamp = ts => new Date(ts).toLocaleTimeString()
-
+//https://g-36c53baaa0.grafana-workspace.eu-central-1.amazonaws.com/api/ds/query
 onMounted(async () => {
   try {
-    const res = await fetch(`${GRAFANA_HOST}/api/ds/query`, {
+    const res = await fetch(`http://localhost:5175`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        queries: [
+        "queries": [
           {
-            refId: 'A',
-            datasource: { uid: TIMESTREAM_UID },
-            rawSql: QUERY,
-            format: 'table',
-            intervalMs: 10000,
-            maxDataPoints: 100
+            "database": "\"distanceTimestreamDB\"",
+            "datasource": {
+              "type": "grafana-timestream-datasource",
+              "uid": "aehli3wxgge80c"
+            },
+            "format": 1,
+            "measure": "",
+              "rawQuery": "SELECT time, measure_value::bigint as distance\r\nFROM \"distanceTimestreamDB\".\"distanceTimestreamDBTable\"\r\nWHERE measure_name = 'distance'\r\nORDER BY time DESC\r\nLIMIT 100",
+            "refId": "A",
+            "table": "\"distanceTimestreamDBTable\"",
+            "datasourceId": 1,
+            "intervalMs": 30000,
+            "maxDataPoints": 819
           }
         ],
-        range: { from: rangeFrom, to: rangeTo }
+        "from": "1744466996092",
+        "to": "1744488596092"
       })
     })
 
