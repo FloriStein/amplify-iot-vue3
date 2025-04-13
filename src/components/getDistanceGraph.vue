@@ -19,7 +19,7 @@ const error = ref(null)
 const API_KEY = 'glsa_vpYDpZnczc792OpaQr8AaCS1H7bgZjO1_5b8acc2e' // Ersetze durch deinen tatsächlichen API-Schlüssel
 //const API_KEY = 'glsa_GaGhf7j1QWHbvuMvagcnoSmxPJsEKmFc_1927fb96' // Ersetze durch deinen tatsächlichen API-Schlüssel
 const TIMESTREAM_UID = 'aehli3wxgge80c' // Ersetze durch deine tatsächliche Timestream-UID
-const GRAFANA_HOST = 'https://g-36c53baaa0.grafana-workspace.eu-central-1.amazonaws.com' // Ersetze durch deinen tatsächlichen Grafana-Host
+const GRAFANA_HOST = 'http://3.124.186.35/api/ds/query/' // Ersetze durch deinen tatsächlichen Grafana-Host
 
 // Zeitbereich: letzte 5 Minuten
 const rangeFrom = new Date(Date.now() - 5 * 60 * 1000).toISOString()
@@ -38,7 +38,7 @@ const formatTimestamp = ts => new Date(ts).toLocaleTimeString()
 //https://g-36c53baaa0.grafana-workspace.eu-central-1.amazonaws.com/api/ds/query
 onMounted(async () => {
   try {
-    const res = await fetch(`http://localhost:5175`, {
+    const res = await fetch(`${GRAFANA_HOST}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${API_KEY}`,
