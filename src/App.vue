@@ -4,14 +4,14 @@
   import { Authenticator } from '@aws-amplify/ui-vue';
   import '@aws-amplify/ui-vue/styles.css';
   import getLiveTemperature from './components/getLiveTemperature.vue';
-  import getDistanceGraph from './components/getDistanceGraph.vue';
+  import grafanaDash from "./components/grafanaDash.vue";
   Amplify.configure(awsExports);
 </script>
 
 <template>
   <authenticator>
     <template v-slot="{ user, signOut }">
-      <getDistanceGraph />
+      <grafanaDash />
       <getLiveTemperature />
       <button @click="signOut">Abmelden</button>
     </template>
