@@ -15,6 +15,20 @@
       },
       "providerPlugin": "awscloudformation",
       "service": "AppSync"
+    },
+    "timestreamaccessapi": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "getTimestreamAccessLambda"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
     }
   },
   "auth": {
@@ -43,6 +57,31 @@
       },
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
+    }
+  },
+  "function": {
+    "getTimestreamAccessLambda": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_getTimestreamAccessLambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "getTimestreamAccessLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_getTimestreamAccessLambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "getTimestreamAccessLambda"
+        }
+      ]
     }
   }
 }

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "paths": {
+    "/data": {
+      "name": "/data",
+      "lambdaFunction": "getTimestreamAccessLambda",
+      "permissions": {
+        "setting": "open"
+      }
+    }
+  }
+}
