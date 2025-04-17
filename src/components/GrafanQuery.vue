@@ -2,6 +2,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Chart } from 'chart.js/auto'
 import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth'
+
 const chartRef = ref(null)
 let chartInstance = null
 let intervalId = null
@@ -11,30 +12,30 @@ const apiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/da
 const fetchDataAndUpdateChart = async () => {
   try {
     const user = await getCurrentUser()
-    console.log('Angemeldet als:', user.username)
-
     const session = await fetchAuthSession()
     const token = session.tokens?.idToken
 
     const res = await fetch(apiUrl, {
       method: 'GET',
-      headers: {
-        Authorization: token
-      }
+      headers: { Authorization: token }
     })
 
     const data = await res.json()
-    console.log('Antwort von API:', data)
-
     if (!Array.isArray(data)) {
       console.error('API liefert kein Array:', data)
       return
     }
 
-    const labels = data.map(entry => new Date(entry.time).toLocaleTimeString())
-    const values = data.map(entry => entry.value)
-    console.log('labels:', labels)
-    console.log('values:', values)
+    // ⏪ Werte umkehren (älteste zuerst)
+    const reversed = [...data].reverse()
+
+    // 🕒 Zeit ohne Sekunden, 📏 Werte in cm
+    const labels = reversed.map(entry =>
+        new Date(entry.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    )
+    const values = reversed.map(entry =>
+        entry.value !== null ? entry.value / 10 : null
+    )
 
     if (chartInstance) {
       chartInstance.data.labels = labels
@@ -46,10 +47,13 @@ const fetchDataAndUpdateChart = async () => {
         data: {
           labels,
           datasets: [{
-            label: 'Distanz',
+            label: 'Distanz (cm)',
             data: values,
             borderWidth: 2,
-            tension: 0.3
+            tension: 0.3,
+            fill: true,
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)'
           }]
         },
         options: {
@@ -60,16 +64,24 @@ const fetchDataAndUpdateChart = async () => {
               title: { display: true, text: 'Zeit' }
             },
             y: {
-              title: { display: true, text: 'Distanz (m)' }
+              title: { display: true, text: 'Distanz (cm)' }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: {
+                font: { size: 14 }
+              }
             }
           }
         }
       })
     }
   } catch (error) {
-    console.error('Fehler bei Auth oder API:', error)
+    console.error('❌ Fehler bei fetchDataAndUpdateChart:', error)
   }
 }
+
 
 onMounted(() => {
   fetchDataAndUpdateChart()

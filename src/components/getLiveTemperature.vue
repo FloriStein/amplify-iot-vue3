@@ -50,6 +50,6 @@ onMounted(() => {
 <template>
   <div>
     <p>Antwort: {{ response }}</p>
-    <button @click="sendRequest">Anfrage senden></button>
+    <button @click="sendRequest">Anfrage senden</button>
   </div>
 </template>
