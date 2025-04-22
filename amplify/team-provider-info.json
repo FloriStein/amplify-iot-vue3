@@ -23,7 +23,7 @@
       "function": {
         "getTimestreamAccessLambda": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/getTimestreamAccessLambda-2b743230614c49665644-build.zip"
+          "s3Key": "amplify-builds/getTimestreamAccessLambda-4d734d34346f794f794f-build.zip"
         }
       }
     }
