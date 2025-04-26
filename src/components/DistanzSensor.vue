@@ -1,35 +1,22 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Chart } from 'chart.js/auto'
-import axios from 'axios'
-import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth'
+import {fetchAuthSession, getCurrentUser} from 'aws-amplify/auth'
 import { PubSub } from '@aws-amplify/pubsub'
 
-// Online-Status-Logik
+// Reaktive States
 const connected = ref(false)
 const lastSeen = ref(null)
-const shadowApiUrl = 'wss://a2tnej84qk5j60-ats.iot.eu-central-1.amazonaws.com/mqtt'
-
-const fetchDeviceShadow = async () => {
-  try {
-    const response = await axios.get(shadowApiUrl)
-    const shadow = response.data
-    const reported = shadow.state?.reported || {}
-    lastSeen.value = reported.lastSeen
-    const now = Date.now()
-     connected.value = reported.connected && (now - reported.lastSeen < 60000)
-  } catch (error) {
-    console.error('Fehler beim Laden des Shadow-Status:', error)
-  }
-}
-
-// Diagramm-Logik
+const currentValue = ref('...')
 const chartRef = ref(null)
 let chartInstance = null
 let chartIntervalId = null
-const dataApiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/data'
 
-const fetchDataAndUpdateChart = async () => {
+// Fetch Shadow + Diagrammdaten
+
+  const dataApiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/data'; // <-- API Gateway URL
+
+const fetchDeviceShadow = async () => {
   try {
     const user = await getCurrentUser()
     const session = await fetchAuthSession()
@@ -42,18 +29,24 @@ const fetchDataAndUpdateChart = async () => {
 
     const responseData = await res.json()
 
-    if (!Array.isArray(responseData.distanceHistory)) {
+    if (!Array.isArray(responseData.data)) {
       console.error('API liefert kein Array:', responseData)
       return
     }
 
-    const reversed = [...responseData.distanceHistory].reverse()
-    const labels = reversed.map(entry =>
-        new Date(entry.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    )
-    const values = reversed.map(entry => entry.value !== null ? entry.value / 10 : null)
+    const reversed = [...responseData.data].reverse()
 
-    connected.value = responseData.connected ?? false
+    const labels = reversed.map(entry =>
+        new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    )
+
+    const values = reversed.map(entry =>
+        entry.distance !== null ? entry.distance / 10 : null
+    )
+
+
+    connected.value = responseData.data[0]?.connected ?? false
+    lastSeen.value = responseData.data[0]?.lastSeen ?? null
 
     if (chartInstance) {
       chartInstance.data.labels = labels
@@ -88,19 +81,17 @@ const fetchDataAndUpdateChart = async () => {
       })
     }
   } catch (error) {
-    console.error('❌ Fehler bei fetchDataAndUpdateChart:', error)
+    console.error('❌ Fehler bei fetchDeviceData:', error)
   }
 }
 
-
-// MQTT Direktabfrage des aktuellen Werts
-const currentValue = ref('...')
+// MQTT (Aktueller Einzelwert)
 const pubsub = new PubSub({
   region: 'eu-central-1',
   endpoint: 'wss://a2tnej84qk5j60-ats.iot.eu-central-1.amazonaws.com/mqtt',
   credentials: async () => {
-    const session = await fetchAuthSession();
-    return session.credentials;
+    const session = await fetchAuthSession()
+    return session.credentials
   }
 })
 
@@ -116,18 +107,17 @@ const sendRequest = async () => {
   }
 }
 
+// Lifecycle
 onMounted(() => {
   fetchDeviceShadow()
-  fetchDataAndUpdateChart()
   chartIntervalId = setInterval(() => {
     fetchDeviceShadow()
-    fetchDataAndUpdateChart()
     sendRequest()
-  }, 60000)
+  }, 2000) // z. B. alle 2 Sekunden
 
   pubsub.subscribe({ topics: 'esp32/responseDistance' }).subscribe({
     next: (data) => {
-      console.log('Empfangene MQTT Nachricht:', data)
+      console.log('MQTT Nachricht:', data)
       currentValue.value = data?.distance ?? 'unbekannt'
     },
     error: (error) => {
@@ -146,6 +136,7 @@ onBeforeUnmount(() => {
   if (chartInstance) chartInstance.destroy()
 })
 </script>
+
 
 <template>
   <div class="min-h-screen bg-gray-100 p-6 dashboard">

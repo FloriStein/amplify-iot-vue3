@@ -26,10 +26,7 @@ const fetchDataAndUpdateChart = async () => {
       return
     }
 
-    // ⏪ Werte umkehren (älteste zuerst)
     const reversed = [...data].reverse()
-
-    // 🕒 Zeit ohne Sekunden, 📏 Werte in cm
     const labels = reversed.map(entry =>
         new Date(entry.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     )

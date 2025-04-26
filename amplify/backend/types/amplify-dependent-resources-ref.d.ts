@@ -29,6 +29,19 @@ export type AmplifyDependentResourcesAttributes = {
       "LambdaExecutionRoleArn": "string",
       "Name": "string",
       "Region": "string"
+    },
+    "storeIotData": {
+      "Arn": "string",
+      "LambdaExecutionRole": "string",
+      "LambdaExecutionRoleArn": "string",
+      "Name": "string",
+      "Region": "string"
+    }
+  },
+  "storage": {
+    "s3SensorData": {
+      "BucketName": "string",
+      "Region": "string"
     }
   }
 }

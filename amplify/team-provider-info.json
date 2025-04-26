@@ -23,8 +23,15 @@
       "function": {
         "getTimestreamAccessLambda": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/getTimestreamAccessLambda-4d734d34346f794f794f-build.zip"
+          "s3Key": "amplify-builds/getTimestreamAccessLambda-4e584d364f5746706334-build.zip"
+        },
+        "storeIotData": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/storeIotData-6b4b476848496a69684b-build.zip"
         }
+      },
+      "storage": {
+        "s3SensorData": {}
       }
     }
   }
