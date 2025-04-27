@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Chart } from 'chart.js/auto'
-import {fetchAuthSession, getCurrentUser} from 'aws-amplify/auth'
+import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth'
 import { PubSub } from '@aws-amplify/pubsub'
 
 // Reaktive States
@@ -12,25 +12,37 @@ const chartRef = ref(null)
 let chartInstance = null
 let chartIntervalId = null
 
-// Fetch Shadow + Diagrammdaten
+// API URL
+const dataApiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/data'
 
-const dataApiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/data'; // <-- API Gateway URL
-
+// Funktion: Daten holen mit Authorization
 const fetchDeviceShadow = async () => {
   try {
     const user = await getCurrentUser()
     const session = await fetchAuthSession()
-    const token = session.tokens?.idToken
+    const token = session.tokens?.idToken?.toString()
+
+    if (!token) {
+      console.error('❌ Kein gültiger Token vorhanden')
+      return
+    }
 
     const res = await fetch(dataApiUrl, {
       method: 'GET',
-      headers: { Authorization: token }
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     })
+
+    if (!res.ok) {
+      throw new Error(`❌ API Error: ${res.status}`)
+    }
 
     const responseData = await res.json()
 
     if (!Array.isArray(responseData.data)) {
-      console.error('API liefert kein Array:', responseData)
+      console.error('❌ API liefert kein Array:', responseData)
       return
     }
 
@@ -43,7 +55,6 @@ const fetchDeviceShadow = async () => {
     const values = reversed.map(entry =>
         entry.distance !== null ? entry.distance / 10 : null
     )
-
 
     connected.value = responseData.data[0]?.connected ?? false
     lastSeen.value = responseData.data[0]?.lastSeen ?? null
@@ -81,11 +92,11 @@ const fetchDeviceShadow = async () => {
       })
     }
   } catch (error) {
-    console.error('❌ Fehler bei fetchDeviceData:', error)
+    console.error('❌ Fehler bei fetchDeviceShadow:', error)
   }
 }
 
-// MQTT (Aktueller Einzelwert)
+// MQTT (ESP32 Nachrichten)
 const pubsub = new PubSub({
   region: 'eu-central-1',
   endpoint: 'wss://a2tnej84qk5j60-ats.iot.eu-central-1.amazonaws.com/mqtt',
@@ -107,13 +118,13 @@ const sendRequest = async () => {
   }
 }
 
-// Lifecycle
+// Lifecycle Hooks
 onMounted(() => {
   fetchDeviceShadow()
   chartIntervalId = setInterval(() => {
     fetchDeviceShadow()
     sendRequest()
-  }, 2000) // z. B. alle 2 Sekunden
+  }, 2000)
 
   pubsub.subscribe({ topics: 'esp32/responseDistance' }).subscribe({
     next: (data) => {
@@ -136,6 +147,7 @@ onBeforeUnmount(() => {
   if (chartInstance) chartInstance.destroy()
 })
 </script>
+
 
 
 <template>
