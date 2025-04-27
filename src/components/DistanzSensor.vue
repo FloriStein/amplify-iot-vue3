@@ -14,7 +14,7 @@ let chartIntervalId = null
 
 // Fetch Shadow + Diagrammdaten
 
-  const dataApiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/data'; // <-- API Gateway URL
+const dataApiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/data'; // <-- API Gateway URL
 
 const fetchDeviceShadow = async () => {
   try {

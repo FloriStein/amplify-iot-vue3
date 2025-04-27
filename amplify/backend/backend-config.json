@@ -60,9 +60,19 @@
     }
   },
   "function": {
+    "distanceAlertlambda": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "getTimestreamAccessLambda": {
       "build": true,
       "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "postConfirmationLambda": {
+      "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
@@ -74,6 +84,22 @@
     }
   },
   "parameters": {
+    "AMPLIFY_function_distanceAlertlambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "distanceAlertlambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_distanceAlertlambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "distanceAlertlambda"
+        }
+      ]
+    },
     "AMPLIFY_function_getTimestreamAccessLambda_deploymentBucketName": {
       "usedBy": [
         {
@@ -87,6 +113,22 @@
         {
           "category": "function",
           "resourceName": "getTimestreamAccessLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_postConfirmationLambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "postConfirmationLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_postConfirmationLambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "postConfirmationLambda"
         }
       ]
     },
