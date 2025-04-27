@@ -1,0 +1,14 @@
+{
+  "resourceName": "s3SensorData",
+  "policyUUID": "1b005ec7",
+  "bucketName": "s3sensordatabucket",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}
