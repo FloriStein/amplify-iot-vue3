@@ -58,6 +58,7 @@ const fetchDataAndUpdateChart = async () => {
     if (chartInstance) {
       chartInstance.data.labels = labels
       chartInstance.data.datasets[0].data = values
+      chartInstance.data.datasets[0].pointBackgroundColor = values.map(v => v > 100 ? 'red' : 'rgba(54, 162, 235, 1)')
       chartInstance.update()
     } else {
       chartInstance = new Chart(chartRef.value, {
@@ -71,7 +72,8 @@ const fetchDataAndUpdateChart = async () => {
             tension: 0.3,
             fill: true,
             backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)'
+            borderColor: 'rgba(54, 162, 235, 1)',
+            pointBackgroundColor: values.map(v => v > 100 ? 'red' : 'rgba(54, 162, 235, 1)')
           }]
         },
         options: {

@@ -1,60 +1,74 @@
-const { TimestreamQueryClient, QueryCommand } = require("@aws-sdk/client-timestream-query");
+const { S3Client, ListObjectsV2Command, GetObjectCommand } = require("@aws-sdk/client-s3");
+
+const client = new S3Client({ region: "eu-central-1" });
+const bucketName = 's3sensordatabucket41ff7-dev';
+const prefix = 'iot-data/';
 
 exports.handler = async (event) => {
-    const client = new TimestreamQueryClient({ region: "eu-central-1" });
-
-    const query = `
-        SELECT time, measure_name, measure_value::bigint
-        FROM "distanceTimestreamDB"."distanceTimestreamDBTable"
-        WHERE measure_name IN ('distance', 'connected')
-        ORDER BY time DESC
-            LIMIT 200
-    `;
-
     try {
-        const command = new QueryCommand({ QueryString: query });
-        const data = await client.send(command);
+        // Holt ALLE Objekte (nicht limitiert auf 20!)
+        const listParams = {
+            Bucket: bucketName,
+            Prefix: prefix,
+        };
 
-        const distanceData = [];
-        let latestConnected = null;
+        const listedObjects = await client.send(new ListObjectsV2Command(listParams));
 
-        for (const row of data.Rows) {
-            const time = row.Data[0]?.ScalarValue;
-            const measure = row.Data[1]?.ScalarValue;
-            const value = row.Data[2]?.ScalarValue;
+        if (!listedObjects.Contents || listedObjects.Contents.length === 0) {
+            return {
+                statusCode: 200,
+                body: JSON.stringify({ data: [] }),
+                headers: corsHeaders()
+            };
+        }
 
-            if (measure === 'distance') {
-                distanceData.push({
-                    time,
-                    value: value !== null ? parseInt(value) : null
+        // 1. Nach LastModified absteigend sortieren (neueste oben)
+        const sortedObjects = listedObjects.Contents.sort((a, b) => b.LastModified - a.LastModified);
+
+        // 2. Nur die 20 neuesten Dateien auswählen
+        const latestObjects = sortedObjects.slice(0, 20);
+
+        const results = [];
+
+        // 3. Diese 20 Dateien auslesen
+        for (const obj of latestObjects) {
+            const getParams = {
+                Bucket: bucketName,
+                Key: obj.Key
+            };
+            const fileData = await client.send(new GetObjectCommand(getParams));
+            const streamToString = (stream) =>
+                new Promise((resolve, reject) => {
+                    const chunks = [];
+                    stream.on("data", (chunk) => chunks.push(chunk));
+                    stream.on("error", reject);
+                    stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
                 });
-            } else if (measure === 'connected' && latestConnected === null) {
-                latestConnected = value === "1"; // nur der neueste Wert wird genommen
-            }
+            const jsonString = await streamToString(fileData.Body);
+            const json = JSON.parse(jsonString);
+            results.push(json);
         }
 
         return {
             statusCode: 200,
-            body: JSON.stringify({
-                connected: latestConnected,
-                distanceHistory: distanceData.reverse() // wieder chronologisch sortieren
-            }),
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "*",
-                "Access-Control-Allow-Methods": "*",
-            }
+            body: JSON.stringify({ data: results }),
+            headers: corsHeaders()
         };
-    } catch (err) {
-        console.error("Timestream query error:", err);
+    } catch (error) {
+        console.error('❌ Fehler beim Abrufen aus S3:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Query failed' }),
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "*",
-                "Access-Control-Allow-Methods": "*",
-            }
+            body: JSON.stringify({ error: 'Fehler beim Lesen aus S3' }),
+            headers: corsHeaders()
         };
     }
 };
+
+function corsHeaders() {
+    return {
+        "Access-Control-Allow-Origin": "http://localhost:5173",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+
+    };
+}

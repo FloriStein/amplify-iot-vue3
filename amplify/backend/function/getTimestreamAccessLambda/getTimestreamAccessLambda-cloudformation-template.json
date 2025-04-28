@@ -175,9 +175,7 @@
             {
               "Effect": "Allow",
               "Action": [
-                "timestream:DescribeEndpoints",
-                "timestream:Query",
-                "timestream:Select"
+                "s3:*"
               ],
               "Resource": [
                 "*"

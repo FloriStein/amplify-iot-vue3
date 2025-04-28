@@ -1,5 +1,7 @@
 {
-  "whyContinueWithGen1": "Gen 2 is missing features I need from Gen 1",
+  "providers": [
+    "awscloudformation"
+  ],
   "projectName": "amplifyiotvue3",
   "version": "3.1",
   "frontend": "javascript",
@@ -11,8 +13,5 @@
       "BuildCommand": "npm.cmd run-script build",
       "StartCommand": "npm.cmd run-script serve"
     }
-  },
-  "providers": [
-    "awscloudformation"
-  ]
+  }
 }
