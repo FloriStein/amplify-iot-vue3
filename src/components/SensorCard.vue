@@ -4,13 +4,14 @@ import axios from 'axios'
 import { Chart } from 'chart.js/auto'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { PubSub } from '@aws-amplify/pubsub'
-
+//test
 const connected = ref(false)
 const lastSeen = ref(null)
 const currentValue = ref('...')
 const chartRef = ref(null)
 let chartInstance = null
 let chartIntervalId = null
+let newVar = null
 
 const idToken = ref(null)
 const dataApiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/data'
