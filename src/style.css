@@ -55,7 +55,55 @@ button:focus-visible {
 }
 
 .card {
-  padding: 2em;
+  background-color: #ffffff;
+  color: #1a1a1a; /* <--- Dunkle Schriftfarbe */
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  transition: box-shadow 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.status-text {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.online {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.offline {
+  color: #9ca3af;
+}
+
+.value-badge {
+  background-color: #2563eb;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  display: inline-block;
+}
+
+.chart-container {
+  background-color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  margin-top: 1rem;
 }
 
 #app {
@@ -70,9 +118,11 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }

@@ -7,6 +7,37 @@
       "permissions": {
         "setting": "open"
       }
+    },
+    "/admin/users": {
+      "name": "/admin/users",
+      "lambdaFunction": "adminUserManager",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/admin/users/{username}": {
+      "name": "/admin/users/{username}",
+      "lambdaFunction": "adminUserManager",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "delete"
+        ]
+      }
+    },
+    "/user/subscription": {
+      "name": "/user/subscription",
+      "lambdaFunction": "userSubscriptionHandler",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read",
+          "update"
+        ]
+      }
     }
   }
 }

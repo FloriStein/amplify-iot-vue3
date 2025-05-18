@@ -3,18 +3,16 @@
   import awsExports from './aws-exports';
   import { Authenticator } from '@aws-amplify/ui-vue';
   import '@aws-amplify/ui-vue/styles.css';
-  import getLiveTemperature from './components/getLiveTemperature.vue';
-  import GrafanQuery from './components/GrafanQuery.vue'
+  import Dashboard from "./components/Dashboard.vue";
   import DistanzSensor from "./components/DistanzSensor.vue";
   Amplify.configure(awsExports);
 </script>
 
 <template>
-  <authenticator>
+  <authenticator hide-sign-up>
     <template v-slot="{ user, signOut }">
-     <!-- <GrafanQuery />
-      <getLiveTemperature />-->
-      <DistanzSensor />
+      <Dashboard />
+     <!-- <DistanzSensor />-->
       <button @click="signOut">Abmelden</button>
     </template>
   </authenticator>

@@ -2,73 +2,82 @@ const { S3Client, ListObjectsV2Command, GetObjectCommand } = require("@aws-sdk/c
 
 const client = new S3Client({ region: "eu-central-1" });
 const bucketName = 's3sensordatabucket41ff7-dev';
-const prefix = 'iot-data/';
+const prefix = 'iot-data/fass1/';
 
 exports.handler = async (event) => {
+    console.log("📥 Event erhalten:", JSON.stringify(event));
+
     try {
-        // Holt ALLE Objekte (nicht limitiert auf 20!)
-        const listParams = {
-            Bucket: bucketName,
-            Prefix: prefix,
-        };
+        let allObjects = [];
+        let continuationToken = undefined;
 
-        const listedObjects = await client.send(new ListObjectsV2Command(listParams));
+        // 🔁 Alle Objekte iterativ laden (pagination)
+        do {
+            const response = await client.send(new ListObjectsV2Command({
+                Bucket: bucketName,
+                Prefix: prefix,
+                MaxKeys: 1000,
+                ContinuationToken: continuationToken
+            }));
 
-        if (!listedObjects.Contents || listedObjects.Contents.length === 0) {
-            return {
-                statusCode: 200,
-                body: JSON.stringify({ data: [] }),
-                headers: corsHeaders()
-            };
+            const objects = response.Contents || [];
+            allObjects = allObjects.concat(objects);
+            continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+        } while (continuationToken);
+
+        if (allObjects.length === 0) {
+            console.log("⚠️ Keine Objekte gefunden.");
+            return respond(200, { data: [] });
         }
 
-        // 1. Nach LastModified absteigend sortieren (neueste oben)
-        const sortedObjects = listedObjects.Contents.sort((a, b) => b.LastModified - a.LastModified);
+        // 🔢 Nach UNIX-Timestamp im Dateinamen sortieren
+        const sortedObjects = allObjects.sort((a, b) => {
+            const tA = Number(a.Key.replace(prefix, '').split('.')[0]);
+            const tB = Number(b.Key.replace(prefix, '').split('.')[0]);
+            return tB - tA;
+        });
 
-        // 2. Nur die 20 neuesten Dateien auswählen
         const latestObjects = sortedObjects.slice(0, 20);
 
-        const results = [];
+        // ⬇️ Dateien parallel lesen und parsen
+        const results = await Promise.all(
+            latestObjects.map(async (obj) => {
+                const fileData = await client.send(new GetObjectCommand({
+                    Bucket: bucketName,
+                    Key: obj.Key
+                }));
 
-        // 3. Diese 20 Dateien auslesen
-        for (const obj of latestObjects) {
-            const getParams = {
-                Bucket: bucketName,
-                Key: obj.Key
-            };
-            const fileData = await client.send(new GetObjectCommand(getParams));
-            const streamToString = (stream) =>
-                new Promise((resolve, reject) => {
-                    const chunks = [];
-                    stream.on("data", (chunk) => chunks.push(chunk));
-                    stream.on("error", reject);
-                    stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
-                });
-            const jsonString = await streamToString(fileData.Body);
-            const json = JSON.parse(jsonString);
-            results.push(json);
-        }
+                const streamToString = (stream) =>
+                    new Promise((resolve, reject) => {
+                        const chunks = [];
+                        stream.on("data", (chunk) => chunks.push(chunk));
+                        stream.on("error", reject);
+                        stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+                    });
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ data: results }),
-            headers: corsHeaders()
-        };
+                const jsonString = await streamToString(fileData.Body);
+                return JSON.parse(jsonString);
+            })
+        );
+
+        return respond(200, { data: results });
+
     } catch (error) {
         console.error('❌ Fehler beim Abrufen aus S3:', error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: 'Fehler beim Lesen aus S3' }),
-            headers: corsHeaders()
-        };
+        return respond(500, { error: 'Fehler beim Lesen aus S3' });
     }
 };
 
-function corsHeaders() {
+function respond(statusCode, body) {
     return {
-        "Access-Control-Allow-Origin": "http://localhost:5173",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-
+        statusCode,
+        body: JSON.stringify(body),
+        headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "http://localhost:5173",
+            "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+            "Access-Control-Allow-Credentials": "true"
+        }
     };
 }

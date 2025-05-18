@@ -25,6 +25,22 @@
           ],
           "category": "function",
           "resourceName": "getTimestreamAccessLambda"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "adminUserManager"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "userSubscriptionHandler"
         }
       ],
       "providerPlugin": "awscloudformation",
@@ -41,7 +57,12 @@
           "SMS"
         ],
         "passwordProtectionSettings": {
-          "passwordPolicyCharacters": [],
+          "passwordPolicyCharacters": [
+            "REQUIRES_LOWERCASE",
+            "REQUIRES_UPPERCASE",
+            "REQUIRES_NUMBERS",
+            "REQUIRES_SYMBOLS"
+          ],
           "passwordPolicyMinLength": 8
         },
         "signupAttributes": [
@@ -60,6 +81,20 @@
     }
   },
   "function": {
+    "adminUserManager": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": [
+            "UserPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "amplifyiotvue37aa4154a"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "distanceAlertlambda": {
       "build": true,
       "providerPlugin": "awscloudformation",
@@ -71,12 +106,19 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
-    "postConfirmationLambda": {
+    "storeIotData": {
       "build": true,
+      "dependsOn": [],
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
-    "storeIotData": {
+    "storeSensorData": {
+      "build": true,
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "userSubscriptionHandler": {
       "build": true,
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
@@ -84,6 +126,22 @@
     }
   },
   "parameters": {
+    "AMPLIFY_function_adminUserManager_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "adminUserManager"
+        }
+      ]
+    },
+    "AMPLIFY_function_adminUserManager_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "adminUserManager"
+        }
+      ]
+    },
     "AMPLIFY_function_distanceAlertlambda_deploymentBucketName": {
       "usedBy": [
         {
@@ -116,22 +174,6 @@
         }
       ]
     },
-    "AMPLIFY_function_postConfirmationLambda_deploymentBucketName": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "postConfirmationLambda"
-        }
-      ]
-    },
-    "AMPLIFY_function_postConfirmationLambda_s3Key": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "postConfirmationLambda"
-        }
-      ]
-    },
     "AMPLIFY_function_storeIotData_deploymentBucketName": {
       "usedBy": [
         {
@@ -145,6 +187,54 @@
         {
           "category": "function",
           "resourceName": "storeIotData"
+        }
+      ]
+    },
+    "AMPLIFY_function_storeSensorData_bucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "storeSensorData"
+        }
+      ]
+    },
+    "AMPLIFY_function_storeSensorData_dbSecretName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "storeSensorData"
+        }
+      ]
+    },
+    "AMPLIFY_function_storeSensorData_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "storeSensorData"
+        }
+      ]
+    },
+    "AMPLIFY_function_storeSensorData_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "storeSensorData"
+        }
+      ]
+    },
+    "AMPLIFY_function_userSubscriptionHandler_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "userSubscriptionHandler"
+        }
+      ]
+    },
+    "AMPLIFY_function_userSubscriptionHandler_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "userSubscriptionHandler"
         }
       ]
     }

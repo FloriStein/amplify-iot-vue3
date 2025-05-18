@@ -1,0 +1,5 @@
+{
+  "USER_POOL_ID": {
+    "Fn::GetAtt": ["authamplifyiotvue37aa4154a", "Outputs.UserPoolId"]
+  }
+}

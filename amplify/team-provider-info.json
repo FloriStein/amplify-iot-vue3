@@ -10,7 +10,8 @@
       "StackName": "amplify-amplifyiotvue3-dev-41ff7",
       "StackId": "arn:aws:cloudformation:eu-central-1:717279707507:stack/amplify-amplifyiotvue3-dev-41ff7/6ce6bc60-16c3-11f0-a104-0afbc87af109",
       "AmplifyAppId": "duyhxtwy8eu3s",
-      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-amplifyiotvue3-dev-41ff7-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-amplifyiotvue3-dev-41ff7-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-amplifyiotvue3-dev-41ff7-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
     },
     "categories": {
       "auth": {
@@ -23,7 +24,7 @@
       "function": {
         "getTimestreamAccessLambda": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/getTimestreamAccessLambda-73686f5a645772644e49-build.zip"
+          "s3Key": "amplify-builds/getTimestreamAccessLambda-4f396946416f766b4970-build.zip"
         },
         "storeIotData": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
@@ -33,9 +34,19 @@
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
           "s3Key": "amplify-builds/distanceAlertlambda-4b4152354c454c50476e-build.zip"
         },
-        "postConfirmationLambda": {
+        "adminUserManager": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/postConfirmationLambda-42464341384862333739-build.zip"
+          "s3Key": "amplify-builds/adminUserManager-7a33587a534d6b343143-build.zip"
+        },
+        "userSubscriptionHandler": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/userSubscriptionHandler-57554f422b415630596c-build.zip"
+        },
+        "storeSensorData": {
+          "bucketName": "s3sensordatabucket41ff7-dev",
+          "dbSecretName": "rds!db-fc53bfbd-aa81-4d18-bdb5-4dbe4e9d6ea4",
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/storeSensorData-354c6c472b7573474e4f-build.zip"
         }
       },
       "storage": {
