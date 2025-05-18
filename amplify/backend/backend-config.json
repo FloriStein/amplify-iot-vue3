@@ -190,22 +190,6 @@
         }
       ]
     },
-    "AMPLIFY_function_storeSensorData_bucketName": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "storeSensorData"
-        }
-      ]
-    },
-    "AMPLIFY_function_storeSensorData_dbSecretName": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "storeSensorData"
-        }
-      ]
-    },
     "AMPLIFY_function_storeSensorData_deploymentBucketName": {
       "usedBy": [
         {

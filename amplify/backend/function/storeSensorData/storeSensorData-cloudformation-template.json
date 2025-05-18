@@ -15,12 +15,6 @@
     },
     "s3Key": {
       "Type": "String"
-    },
-    "bucketName": {
-      "Type": "String"
-    },
-    "dbSecretName": {
-      "Type": "String"
     }
   },
   "Conditions": {
@@ -75,12 +69,6 @@
             },
             "REGION": {
               "Ref": "AWS::Region"
-            },
-            "BUCKET_NAME": {
-              "Ref": "bucketName"
-            },
-            "DB_SECRET_NAME": {
-              "Ref": "dbSecretName"
             }
           }
         },

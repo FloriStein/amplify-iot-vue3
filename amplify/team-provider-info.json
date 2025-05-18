@@ -43,8 +43,6 @@
           "s3Key": "amplify-builds/userSubscriptionHandler-57554f422b415630596c-build.zip"
         },
         "storeSensorData": {
-          "bucketName": "s3sensordatabucket41ff7-dev",
-          "dbSecretName": "rds!db-fc53bfbd-aa81-4d18-bdb5-4dbe4e9d6ea4",
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
           "s3Key": "amplify-builds/storeSensorData-354c6c472b7573474e4f-build.zip"
         }
