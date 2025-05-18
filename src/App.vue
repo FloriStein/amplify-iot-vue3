@@ -4,7 +4,6 @@
   import { Authenticator } from '@aws-amplify/ui-vue';
   import '@aws-amplify/ui-vue/styles.css';
   import Dashboard from "./components/Dashboard.vue";
-  import DistanzSensor from "./components/DistanzSensor.vue";
   Amplify.configure(awsExports);
 </script>
 

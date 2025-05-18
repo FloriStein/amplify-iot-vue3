@@ -4,7 +4,6 @@ import { fetchAuthSession } from 'aws-amplify/auth'
 import SensorCard from './SensorCard.vue'
 import AdminPanel from "./AdminPanel.vue";
 import SubscriptionSwitch from './SubscriptionSwitch.vue'
-import DistanzSensor from './DistanzSensor.vue'
 
 const isAdmin = ref(false)
 
