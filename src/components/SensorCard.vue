@@ -4,7 +4,6 @@ import axios from 'axios'
 import { Chart } from 'chart.js/auto'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { PubSub } from '@aws-amplify/pubsub'
-//test
 const connected = ref(false)
 const lastSeen = ref(null)
 const currentValue = ref('...')
