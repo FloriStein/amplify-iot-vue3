@@ -1,0 +1,34 @@
+[
+  {
+    "Effect": "Allow",
+    "Action": [
+      "cognito-idp:AdminCreateUser",
+      "cognito-idp:AdminAddUserToGroup",
+      "cognito-idp:AdminDeleteUser",
+      "cognito-idp:ListUsers"
+    ],
+    "Resource": [
+      "arn:aws:cognito-idp:eu-central-1:717279707507:userpool/eu-central-1_4WflHc8Ea"
+    ]
+  },
+  {
+    "Effect": "Allow",
+    "Action": [
+      "sns:Subscribe",
+      "sns:ListSubscriptionsByTopic",
+      "sns:Unsubscribe"
+    ],
+    "Resource": [
+      "arn:aws:sns:eu-central-1:717279707507:distance-alert-topic"
+    ]
+  },
+  {
+    "Effect": "Allow",
+    "Action": [
+      "ses:SendEmail"
+      ],
+    "Resource": [
+      "*"
+      ]
+  }
+]

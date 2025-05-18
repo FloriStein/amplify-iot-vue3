@@ -1,0 +1,13 @@
+[
+  {
+    "Effect": "Allow",
+    "Action": [
+      "sns:Subscribe",
+      "sns:ListSubscriptionsByTopic",
+      "sns:Unsubscribe"
+    ],
+    "Resource": [
+      "arn:aws:sns:eu-central-1:717279707507:distance-alert-topic"
+    ]
+  }
+]

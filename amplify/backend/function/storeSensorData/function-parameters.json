@@ -1,0 +1,14 @@
+{
+  "lambdaLayers": [],
+  "environmentVariableList": [
+    {
+      "cloudFormationParameterName": "bucketName",
+      "environmentVariableName": "BUCKET_NAME"
+    },
+    {
+      "cloudFormationParameterName": "dbSecretName",
+      "environmentVariableName": "DB_SECRET_NAME"
+    }
+  ],
+  "permissions": {}
+}

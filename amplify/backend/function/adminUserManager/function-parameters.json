@@ -1,0 +1,12 @@
+{
+  "lambdaLayers": [],
+  "permissions": {
+    "auth": {
+      "amplifyiotvue37aa4154a": [
+        "read",
+        "update",
+        "delete"
+      ]
+    }
+  }
+}
