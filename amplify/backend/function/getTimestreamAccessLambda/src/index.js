@@ -16,7 +16,7 @@ exports.handler = async (event) => {
             const response = await client.send(new ListObjectsV2Command({
                 Bucket: bucketName,
                 Prefix: prefix,
-                MaxKeys: 1000,
+                MaxKeys: 50,
                 ContinuationToken: continuationToken
             }));
 

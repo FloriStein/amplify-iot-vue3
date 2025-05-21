@@ -38,6 +38,36 @@
           "update"
         ]
       }
+    },
+    "/admin/meta": {
+      "name": "/admin/meta",
+      "lambdaFunction": "regenfassMetaHandler",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create"
+        ]
+      }
+    },
+    "/admin/meta/{fassId}": {
+      "name": "/admin/meta/{fassId}",
+      "lambdaFunction": "regenfassMetaHandler",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "delete"
+        ]
+      }
+    },
+    "/data/{thing}": {
+      "name": "/data/{thing}",
+      "lambdaFunction": "hydroNodeS3GetSensorValuesFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
     }
   }
 }

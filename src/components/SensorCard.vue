@@ -8,9 +8,19 @@ const connected = ref(false)
 const lastSeen = ref(null)
 const currentValue = ref('...')
 const chartRef = ref(null)
+const selectedMetric = ref(null)
+const availableMetrics = ref([])
 let chartInstance = null
 let chartIntervalId = null
-let newVar = null
+
+const metricUnits = {
+  distance: 'mm',
+  pressure: 'Pa',
+  batteryVoltage: 'V',
+  batteryFillPercentage: '%',
+  fill_percent: '%'
+}
+
 
 const idToken = ref(null)
 const dataApiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/data'
@@ -22,17 +32,16 @@ const fetchDeviceShadow = async () => {
   }
 
   try {
-    const res = await axios.get(dataApiUrl, {
+    const res = await axios.get(`${dataApiUrl}/hydronode-1`, {
       headers: {
         Authorization: `Bearer ${idToken.value}`,
         'Content-Type': 'application/json'
       },
       timeout: 5000
     })
+    console.log('📦 API-Rohdaten:', res.data)
 
-    const responseData = res.data
-    const rawData = responseData.data
-
+    const rawData = res.data?.data
     if (!Array.isArray(rawData) || rawData.length === 0) {
       console.warn('⚠️ Keine gültigen Daten erhalten')
       return
@@ -42,25 +51,34 @@ const fetchDeviceShadow = async () => {
     const labels = reversed.map(entry =>
         new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     )
-    const values = reversed.map(entry =>
-        typeof entry.fill_percent === 'number' ? entry.fill_percent : null
-    )
+
+    // 🔍 Mögliche Metriken (alle Keys außer timestamp)
+    if (availableMetrics.value.length === 0) {
+      availableMetrics.value = Object.keys(reversed[0]).filter(k => k !== 'timestamp' && k !== 'thingName')
+    }
+
+    const values = reversed.map(entry => {
+      const val = entry[selectedMetric.value]
+      return typeof val === 'number' ? val : null
+    })
 
     connected.value = true
     lastSeen.value = reversed[0]?.timestamp ?? null
-    // ⛔ currentValue wird NICHT hier gesetzt
 
     if (chartInstance && labels.length === values.length && values.every(v => typeof v === 'number')) {
       chartInstance.data.labels = labels
       chartInstance.data.datasets[0].data = values
+      chartInstance.data.datasets[0].label = selectedMetric.value
+      chartInstance.options.scales.y.title.text = `${selectedMetric.value} (${metricUnits[selectedMetric.value] || ''})`
       chartInstance.update()
-    } else if (!chartInstance) {
+    }
+     else if (!chartInstance) {
       chartInstance = new Chart(chartRef.value, {
         type: 'line',
         data: {
           labels,
           datasets: [{
-            label: 'Füllstand (%)',
+            label: selectedMetric.value,
             data: values,
             borderWidth: 2,
             tension: 0.3,
@@ -75,15 +93,19 @@ const fetchDeviceShadow = async () => {
           animation: false,
           scales: {
             x: { title: { display: true, text: 'Zeit' } },
-            y: { title: { display: true, text: 'Füllstand (%)' }, min: 0, max: 100 }
+            y: {
+              title: {
+                display: true,
+                text: `${selectedMetric.value} (${metricUnits[selectedMetric.value] || ''})`
+              }
+            }
           },
           plugins: {
             legend: { labels: { font: { size: 14 } } }
           }
         }
+
       })
-    } else {
-      console.warn('⚠️ Ungültige Chartdaten, Update übersprungen')
     }
   } catch (error) {
     if (error.code === 'ECONNABORTED') {
@@ -93,6 +115,7 @@ const fetchDeviceShadow = async () => {
     }
   }
 }
+
 
 const pubsub = new PubSub({
   region: 'eu-central-1',
@@ -176,6 +199,15 @@ onBeforeUnmount(() => {
           {{ currentValue }}
         </span>
       </div>
+    </div>
+
+    <div class="mb-4">
+      <label for="metric-select" class="text-sm font-medium text-gray-700">Anzeigewert:</label>
+      <select id="metric-select" v-model="selectedMetric" @change="fetchDeviceShadow" class="ml-2 p-1 border rounded">
+        <option v-for="metric in availableMetrics" :key="metric" :value="metric">
+          {{ metric }}
+        </option>
+      </select>
     </div>
 
     <div class="chart-container">

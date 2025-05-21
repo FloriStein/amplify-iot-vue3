@@ -25,6 +25,22 @@
           ],
           "category": "function",
           "resourceName": "userSubscriptionHandler"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "regenfassMetaHandler"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "hydroNodeS3GetSensorValuesFunction"
         }
       ],
       "providerPlugin": "awscloudformation",
@@ -87,6 +103,21 @@
     "getTimestreamAccessLambda": {
       "build": true,
       "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "hydroNodeS3GetSensorValuesFunction": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "hydroNodeStoreSensorDataLambda": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "regenfassMetaHandler": {
+      "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
@@ -155,6 +186,54 @@
         {
           "category": "function",
           "resourceName": "getTimestreamAccessLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeS3GetSensorValuesFunction_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeS3GetSensorValuesFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeS3GetSensorValuesFunction_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeS3GetSensorValuesFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeStoreSensorDataLambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeStoreSensorDataLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeStoreSensorDataLambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeStoreSensorDataLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_regenfassMetaHandler_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "regenfassMetaHandler"
+        }
+      ]
+    },
+    "AMPLIFY_function_regenfassMetaHandler_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "regenfassMetaHandler"
         }
       ]
     },

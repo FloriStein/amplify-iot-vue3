@@ -23,7 +23,7 @@
       "function": {
         "getTimestreamAccessLambda": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/getTimestreamAccessLambda-4f396946416f766b4970-build.zip"
+          "s3Key": "amplify-builds/getTimestreamAccessLambda-5a747774697271766c2b-build.zip"
         },
         "storeIotData": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
@@ -44,6 +44,18 @@
         "storeSensorData": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
           "s3Key": "amplify-builds/storeSensorData-354c6c472b7573474e4f-build.zip"
+        },
+        "regenfassMetaHandler": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/regenfassMetaHandler-444e4b4a5865546c474e-build.zip"
+        },
+        "hydroNodeStoreSensorDataLambda": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/hydroNodeStoreSensorDataLambda-735243516d7546726b62-build.zip"
+        },
+        "hydroNodeS3GetSensorValuesFunction": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/hydroNodeS3GetSensorValuesFunction-557141786e3057577632-build.zip"
         }
       },
       "storage": {

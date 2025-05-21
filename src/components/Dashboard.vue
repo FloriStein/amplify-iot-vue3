@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import SensorCard from './SensorCard.vue'
 import AdminPanel from "./AdminPanel.vue";
+import MetadataAdminPanel from "./MetadataAdminPanel.vue";
 import SubscriptionSwitch from './SubscriptionSwitch.vue'
 
 const isAdmin = ref(false)
@@ -30,6 +31,7 @@ onMounted(() => {
     <SensorCard />
     <SubscriptionSwitch />
     <AdminPanel v-if="isAdmin" class="mt-6" />
+    <MetadataAdminPanel v-if="isAdmin" class="mt-6" />
   </div>
 </template>
 
