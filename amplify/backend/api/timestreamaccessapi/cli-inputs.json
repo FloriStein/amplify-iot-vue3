@@ -1,13 +1,6 @@
 {
   "version": 1,
   "paths": {
-    "/data": {
-      "name": "/data",
-      "lambdaFunction": "getTimestreamAccessLambda",
-      "permissions": {
-        "setting": "open"
-      }
-    },
     "/admin/users": {
       "name": "/admin/users",
       "lambdaFunction": "adminUserManager",
@@ -61,6 +54,16 @@
     },
     "/data/{thing}": {
       "name": "/data/{thing}",
+      "lambdaFunction": "hydroNodeS3GetSensorValuesFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/data": {
+      "name": "/data",
       "lambdaFunction": "hydroNodeS3GetSensorValuesFunction",
       "permissions": {
         "setting": "private",

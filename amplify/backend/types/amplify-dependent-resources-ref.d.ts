@@ -32,13 +32,6 @@ export type AmplifyDependentResourcesAttributes = {
       "Name": "string",
       "Region": "string"
     },
-    "getTimestreamAccessLambda": {
-      "Arn": "string",
-      "LambdaExecutionRole": "string",
-      "LambdaExecutionRoleArn": "string",
-      "Name": "string",
-      "Region": "string"
-    },
     "hydroNodeS3GetSensorValuesFunction": {
       "Arn": "string",
       "LambdaExecutionRole": "string",

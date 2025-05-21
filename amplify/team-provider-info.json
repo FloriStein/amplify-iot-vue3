@@ -21,10 +21,6 @@
         "timestreamaccessapi": {}
       },
       "function": {
-        "getTimestreamAccessLambda": {
-          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/getTimestreamAccessLambda-5a747774697271766c2b-build.zip"
-        },
         "storeIotData": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
           "s3Key": "amplify-builds/storeIotData-3835716b7338664b5630-build.zip"

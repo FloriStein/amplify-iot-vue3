@@ -8,14 +8,6 @@
             "Arn"
           ],
           "category": "function",
-          "resourceName": "getTimestreamAccessLambda"
-        },
-        {
-          "attributes": [
-            "Name",
-            "Arn"
-          ],
-          "category": "function",
           "resourceName": "adminUserManager"
         },
         {
@@ -100,12 +92,6 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
-    "getTimestreamAccessLambda": {
-      "build": true,
-      "dependsOn": [],
-      "providerPlugin": "awscloudformation",
-      "service": "Lambda"
-    },
     "hydroNodeS3GetSensorValuesFunction": {
       "build": true,
       "providerPlugin": "awscloudformation",
@@ -170,22 +156,6 @@
         {
           "category": "function",
           "resourceName": "distanceAlertlambda"
-        }
-      ]
-    },
-    "AMPLIFY_function_getTimestreamAccessLambda_deploymentBucketName": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "getTimestreamAccessLambda"
-        }
-      ]
-    },
-    "AMPLIFY_function_getTimestreamAccessLambda_s3Key": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "getTimestreamAccessLambda"
         }
       ]
     },
