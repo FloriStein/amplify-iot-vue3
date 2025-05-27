@@ -18,6 +18,13 @@ export type AmplifyDependentResourcesAttributes = {
     }
   },
   "function": {
+    "HydroNodeGetCurrentValuesFunction": {
+      "Arn": "string",
+      "LambdaExecutionRole": "string",
+      "LambdaExecutionRoleArn": "string",
+      "Name": "string",
+      "Region": "string"
+    },
     "adminUserManager": {
       "Arn": "string",
       "LambdaExecutionRole": "string",
@@ -32,6 +39,13 @@ export type AmplifyDependentResourcesAttributes = {
       "Name": "string",
       "Region": "string"
     },
+    "hydroNodeGetSensorDropdown": {
+      "Arn": "string",
+      "LambdaExecutionRole": "string",
+      "LambdaExecutionRoleArn": "string",
+      "Name": "string",
+      "Region": "string"
+    },
     "hydroNodeS3GetSensorValuesFunction": {
       "Arn": "string",
       "LambdaExecutionRole": "string",
@@ -39,7 +53,7 @@ export type AmplifyDependentResourcesAttributes = {
       "Name": "string",
       "Region": "string"
     },
-    "hydroNodeStoreSensorDataLambda": {
+    "hydroNodeStoreSensorDataFunction": {
       "Arn": "string",
       "LambdaExecutionRole": "string",
       "LambdaExecutionRoleArn": "string",

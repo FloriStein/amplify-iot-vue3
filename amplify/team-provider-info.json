@@ -45,13 +45,21 @@
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
           "s3Key": "amplify-builds/regenfassMetaHandler-444e4b4a5865546c474e-build.zip"
         },
-        "hydroNodeStoreSensorDataLambda": {
-          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/hydroNodeStoreSensorDataLambda-735243516d7546726b62-build.zip"
-        },
         "hydroNodeS3GetSensorValuesFunction": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
           "s3Key": "amplify-builds/hydroNodeS3GetSensorValuesFunction-557141786e3057577632-build.zip"
+        },
+        "hydroNodeStoreSensorDataFunction": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/hydroNodeStoreSensorDataFunction-38785844745053445053-build.zip"
+        },
+        "HydroNodeGetCurrentValuesFunction": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/HydroNodeGetCurrentValuesFunction-724567334a3939414c63-build.zip"
+        },
+        "hydroNodeGetSensorDropdown": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/hydroNodeGetSensorDropdown-7754504d7631664b464a-build.zip"
         }
       },
       "storage": {

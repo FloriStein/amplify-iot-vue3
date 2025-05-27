@@ -71,6 +71,26 @@
           "read"
         ]
       }
+    },
+    "/{node-id}/data": {
+      "name": "/{node-id}/data",
+      "lambdaFunction": "HydroNodeGetCurrentValuesFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/meta/vessels": {
+      "name": "/meta/vessels",
+      "lambdaFunction": "hydroNodeGetSensorDropdown",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
     }
   }
 }
