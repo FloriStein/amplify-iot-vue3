@@ -3,28 +3,41 @@ import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 import { fetchAuthSession } from 'aws-amplify/auth'
 
+// Basis-URL der API für Metadaten-Endpunkte
 const apiBaseUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/admin/meta'
 
+// ID-Token für die Authentifizierung mit AWS Cognito
 const idToken = ref(null)
 
+// Daten für Dropdowns (Schiffe, Stationen, Sensoren)
 const vessels = ref([])
 const stations = ref([])
 const sensors = ref([])
 
+// Ausgewählte Ressource
 const selectedVessel = ref(null)
 const selectedStation = ref(null)
 const selectedSensor = ref(null)
 
+// Gehaltene Metadaten des aktuell ausgewählten Objekts
 const metaData = ref({})
+
+// Zustände für Lade-/Speichervorgänge
 const isLoading = ref(false)
 const isSaving = ref(false)
 const saveMessage = ref('')
 
+// Vom Benutzer zum Speichern/Löschen markierte Felder
 const selectedFields = ref(new Set())
 
+// Eingabefelder für neues Metadaten-Feld
 const newFieldName = ref('')
 const newFieldValue = ref('')
 
+/**
+ * Wenn eine Ressource ausgewählt wird, werden die anderen zurückgesetzt,
+ * da nur eine Ressource (Vessel, Station, Sensor) gleichzeitig aktiv sein kann.
+ */
 watch(selectedVessel, (v) => {
   if (v) {
     selectedStation.value = null
@@ -46,6 +59,9 @@ watch(selectedSensor, (s) => {
   }
 })
 
+/**
+ * Lädt das Auth-Token aus dem aktuellen Cognito-Session
+ */
 async function loadToken() {
   try {
     const session = await fetchAuthSession()
@@ -55,6 +71,9 @@ async function loadToken() {
   }
 }
 
+/**
+ * Lädt die Auswahlmöglichkeiten (Dropdowns) für alle Ressourcen
+ */
 async function fetchDropdownData() {
   isLoading.value = true
   try {
@@ -65,6 +84,7 @@ async function fetchDropdownData() {
       }
     })
 
+    // Formatiert die empfangenen Daten für die Anzeige
     vessels.value = (res.data.vessels || []).map(v => ({
       id: v.Vessel_ID,
       name: v.Vessel_location
@@ -78,6 +98,7 @@ async function fetchDropdownData() {
       name: s.Sensor_model
     }))
 
+    // Setzt initial eine Auswahl, falls vorhanden
     if (vessels.value.length) selectedVessel.value = vessels.value[0].id
     if (stations.value.length) selectedStation.value = stations.value[0].id
     if (sensors.value.length) selectedSensor.value = sensors.value[0].id
@@ -89,15 +110,18 @@ async function fetchDropdownData() {
   }
 }
 
+/**
+ * Lädt Metadaten der aktuell ausgewählten Ressource
+ */
 async function fetchMeta() {
   isLoading.value = true
   saveMessage.value = ''
   selectedFields.value.clear()
 
   try {
+    // Ermittelt die gewählte Ressource
     let resource = null
     let id = null
-
     if (selectedSensor.value) {
       resource = 'sensor'
       id = selectedSensor.value
@@ -114,6 +138,7 @@ async function fetchMeta() {
       return
     }
 
+    // Holt Metadaten von der API
     const res = await axios.get(`${apiBaseUrl}/${resource}/${id}`, {
       headers: {
         Authorization: `Bearer ${idToken.value}`,
@@ -121,10 +146,13 @@ async function fetchMeta() {
       }
     })
 
+    // Falls Daten in einem Array verpackt sind, extrahiere erstes Element
     const apiData = res.data?.data
     const data = Array.isArray(apiData) ? apiData[0] || {} : apiData || {}
 
+    // Entfernt evtl. vorhandene ID aus Metadaten
     if (data.id !== undefined) delete data.id
+
     metaData.value = data
 
   } catch (err) {
@@ -135,6 +163,9 @@ async function fetchMeta() {
   }
 }
 
+/**
+ * Auswahl/Umschalten einzelner Felder für Speichern/Löschen)
+ */
 function toggleFieldSelection(key) {
   if (selectedFields.value.has(key)) {
     selectedFields.value.delete(key)
@@ -143,7 +174,9 @@ function toggleFieldSelection(key) {
   }
 }
 
-
+/**
+ * Fügt ein neues Metadaten-Feld hinzu
+ */
 function addNewField() {
   const fieldName = newFieldName.value.trim()
   if (!fieldName) {
@@ -159,6 +192,9 @@ function addNewField() {
   newFieldValue.value = ''
 }
 
+/**
+ * Speichert ausgewählte Metadaten-Felder über PUT-Anfrage
+ */
 async function saveMeta() {
   isSaving.value = true
   saveMessage.value = ''
@@ -206,6 +242,9 @@ async function saveMeta() {
   }
 }
 
+/**
+ * Löscht ein einzelnes Metadaten-Feld
+ */
 async function deleteField() {
   if (selectedFields.value.size !== 1) {
     alert('Bitte genau ein Feld zum Löschen auswählen.')
@@ -252,14 +291,24 @@ async function deleteField() {
   }
 }
 
+/**
+ * Beim Mounten:
+ * - Authentifizierung laden
+ * - Dropdown-Daten laden
+ * - Initiale Metadaten abrufen
+ */
 onMounted(async () => {
   await loadToken()
   await fetchDropdownData()
   await fetchMeta()
 })
 
+/**
+ * Beobachtet Wechsel in einer der Ressourcen-Auswahlen → lädt neue Metadaten
+ */
 watch([selectedVessel, selectedStation, selectedSensor], fetchMeta)
 </script>
+
 
 <template>
   <div class="card p-6 max-w-4xl mx-auto">

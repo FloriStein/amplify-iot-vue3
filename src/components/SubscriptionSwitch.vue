@@ -24,11 +24,10 @@ const updateSubscription = async (action) => {
       }
     }
 
-    let response
     if (action === 'subscribe') {
-      response = await axios.put(apiUrl, {}, config)
+      await axios.put(apiUrl, {}, config)
     } else {
-      response = await axios.delete(apiUrl, config)
+      await axios.delete(apiUrl, config)
     }
 
     subscribed.value = action === 'subscribe'

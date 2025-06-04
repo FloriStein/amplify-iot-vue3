@@ -1,34 +1,43 @@
 <script setup>
-import {ref, onMounted, onBeforeUnmount, watch, computed} from 'vue'
+// Import benötigter Funktionen und Bibliotheken
+import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import axios from 'axios'
 import { Chart } from 'chart.js/auto'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { PubSub } from '@aws-amplify/pubsub'
 
+// Verbindungsstatus und Messwerte
 const connected = ref(false)
 const lastSeen = ref(null)
 const currentValue = ref('...')
+
+// Chart-Referenz
 const chartRef = ref(null)
+
+// Datenquellen
 const vessels = ref([])
 const stations = ref([])
 const sensors = ref([])
+
+// Ausgewählte IDs
 const selectedVessel = ref(null)
 const selectedStation = ref(null)
 const selectedSensor = ref(null)
 
-const selectedVesselMeta = computed(() => {
-  return vessels.value.find(v => v.id === selectedVessel.value) ?? null
-})
+// Metadaten der aktuell ausgewählten Einträge
+const selectedVesselMeta = computed(() =>
+    vessels.value.find(v => v.id === selectedVessel.value) ?? null
+)
 
-const selectedStationMeta = computed(() => {
-  return stations.value.find(s => s.id === selectedStation.value) ?? null
-})
+const selectedStationMeta = computed(() =>
+    stations.value.find(s => s.id === selectedStation.value) ?? null
+)
 
-const selectedSensorMeta = computed(() => {
-  return sensors.value.find(s => s.id === selectedSensor.value) ?? null
-})
+const selectedSensorMeta = computed(() =>
+    sensors.value.find(s => s.id === selectedSensor.value) ?? null
+)
 
-
+// Watcher für Auswahländerungen
 watch([selectedStation, selectedSensor], async ([newStation, newSensor]) => {
   if (newStation && newSensor) {
     const sensorMeta = sensors.value.find(s => s.id === newSensor)
@@ -46,12 +55,15 @@ watch(selectedStation, async (newVal) => {
   if (newVal) await fetchSensors(newVal)
 })
 
+// Chart-Instanz & Aktualisierungsintervall
 let chartInstance = null
 let chartIntervalId = null
 
+// Authentifizierungs-Token
 const idToken = ref(null)
 const dataApiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev'
 
+// Hole Liste der verfügbaren Schiffe
 const fetchVessels = async () => {
   try {
     const session = await fetchAuthSession()
@@ -64,6 +76,7 @@ const fetchVessels = async () => {
       }
     })
 
+    // Normalisiere Vessel-Daten
     vessels.value = res.data.data.map(v => {
       const vesselObj = {
         id: v.Vessel_ID,
@@ -81,6 +94,7 @@ const fetchVessels = async () => {
       return vesselObj
     })
 
+    // ⛴ Standardauswahl
     if (vessels.value.length > 0) {
       selectedVessel.value = vessels.value[0].id
       await fetchStations(selectedVessel.value)
@@ -91,6 +105,7 @@ const fetchVessels = async () => {
   }
 }
 
+// Lade Messstationen für ausgewähltes Schiff
 const fetchStations = async (vesselId) => {
   try {
     const res = await axios.get(`${dataApiUrl}/meta/vessels?vessel_id=${vesselId}`, {
@@ -114,6 +129,7 @@ const fetchStations = async (vesselId) => {
           stationObj[normalizedKey] = value ?? 'unbekannt'
         }
       }
+
       return stationObj
     })
 
@@ -127,6 +143,7 @@ const fetchStations = async (vesselId) => {
   }
 }
 
+// Lade Sensoren für ausgewählte Station
 const fetchSensors = async (stationId) => {
   try {
     const res = await axios.get(`${dataApiUrl}/meta/vessels?station_id=${stationId}`, {
@@ -135,25 +152,25 @@ const fetchSensors = async (stationId) => {
         'Content-Type': 'application/json'
       }
     })
+
     sensors.value = res.data.data.map(s => {
       const sensorObj = {
         id: s.Sensor_ID,
         name: s.Sensor_type,
-        station_id: s.Measuring_station_ID, // manuell gesetzt, nicht aus `s`
+        station_id: s.Measuring_station_ID,
         unit: s.Sensor_unit || 'unbekannt'
       }
 
       const excludedKeys = ['Sensor_ID', 'Sensor_type', 'Sensor_unit', 'Measuring_station_ID']
-
       for (const [key, value] of Object.entries(s)) {
         if (!excludedKeys.includes(key)) {
           const normalizedKey = key.toLowerCase()
           sensorObj[normalizedKey] = value ?? 'unbekannt'
         }
       }
+
       return sensorObj
     })
-
 
     if (sensors.value.length > 0) {
       selectedSensor.value = sensors.value[0].id
@@ -166,6 +183,7 @@ const fetchSensors = async (stationId) => {
   }
 }
 
+// Abruf aktueller Sensordaten (Beispiel: zur Visualisierung im Chart)
 const fetchDeviceShadow = async (sensor) => {
   const sensorType = sensor.name
   const sensorUnit = sensor.unit || ''
@@ -194,6 +212,7 @@ const fetchDeviceShadow = async (sensor) => {
     )
     const dataPoints = rawData.map(entry => entry.value)
 
+    // Update Chart
     if (chartInstance) {
       chartInstance.data.labels = labels
       chartInstance.data.datasets[0].data = dataPoints
@@ -201,6 +220,7 @@ const fetchDeviceShadow = async (sensor) => {
       chartInstance.options.scales.y.title.text = `${sensorType} (${sensorUnit})`
       chartInstance.update()
     } else {
+      // Initial Chart-Setup
       chartInstance = new Chart(chartRef.value, {
         type: 'line',
         data: {
@@ -244,6 +264,7 @@ const fetchDeviceShadow = async (sensor) => {
   }
 }
 
+// MQTT-Verbindung mit AWS IoT über PubSub
 const pubsub = new PubSub({
   region: 'eu-central-1',
   endpoint: 'wss://a2tnej84qk5j60-ats.iot.eu-central-1.amazonaws.com/mqtt',
@@ -253,6 +274,7 @@ const pubsub = new PubSub({
   }
 })
 
+// Anfrage an ESP32 senden
 const sendRequest = async () => {
   try {
     await pubsub.publish({
@@ -264,6 +286,7 @@ const sendRequest = async () => {
   }
 }
 
+// Initialisierung bei Komponenteneinbindung
 onMounted(async () => {
   try {
     const session = await fetchAuthSession()
@@ -271,7 +294,6 @@ onMounted(async () => {
 
     await fetchVessels()
 
-    // Initiales Laden des DeviceShadow nur wenn Sensor verfügbar ist
     if (selectedSensor.value) {
       const sensorMeta = sensors.value.find(s => s.id === selectedSensor.value)
       if (sensorMeta) {
@@ -279,22 +301,19 @@ onMounted(async () => {
       } else {
         console.warn('Kein passender Sensor beim Initialisieren gefunden')
       }
-    } else {
-      console.warn('Kein Sensor ausgewählt beim Initialisieren')
     }
 
-    // Automatische Aktualisierung alle 2 Sekunden
+    // 🔁 Daten in regelmäßigen Abständen aktualisieren
     chartIntervalId = setInterval(() => {
       const sensorMeta = sensors.value.find(s => s.id === selectedSensor.value)
       if (sensorMeta) {
         console.log('🔄 Periodischer fetchDeviceShadow mit Sensor:', sensorMeta)
         fetchDeviceShadow(sensorMeta)
         sendRequest()
-      } else {
-        console.warn('Kein Sensor für fetchDeviceShadow im Interval gefunden')
       }
     }, 2000)
 
+    // Abonniere MQTT-Topic für Sensordaten
     sendRequest()
 
     pubsub.subscribe({ topics: 'esp32/responseDistance' }).subscribe({
@@ -314,17 +333,19 @@ onMounted(async () => {
         console.log('MQTT-Abonnement beendet')
       }
     })
+
   } catch (err) {
     console.error('❌ Fehler beim Initialisieren:', err)
   }
 })
 
-
+// Aufräumen beim Entfernen der Komponente
 onBeforeUnmount(() => {
   clearInterval(chartIntervalId)
   if (chartInstance) chartInstance.destroy()
 })
 </script>
+
 
 <template>
   <div class="card">
