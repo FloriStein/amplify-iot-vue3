@@ -49,6 +49,22 @@
           ],
           "category": "function",
           "resourceName": "hydroNodeGetSensorDropdown"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "hydroNodeMetaHandler"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "CommandSendLambda"
         }
       ],
       "providerPlugin": "awscloudformation",
@@ -89,6 +105,16 @@
     }
   },
   "function": {
+    "CommandReceiveLambda": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "CommandSendLambda": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "HydroNodeGetCurrentValuesFunction": {
       "build": true,
       "providerPlugin": "awscloudformation",
@@ -118,6 +144,11 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
+    "hydroNodeMetaHandler": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "hydroNodeS3GetSensorValuesFunction": {
       "build": true,
       "providerPlugin": "awscloudformation",
@@ -129,6 +160,11 @@
       "service": "Lambda"
     },
     "regenfassMetaHandler": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "sqsRespondLambda": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
@@ -153,6 +189,38 @@
     }
   },
   "parameters": {
+    "AMPLIFY_function_CommandReceiveLambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "CommandReceiveLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_CommandReceiveLambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "CommandReceiveLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_CommandSendLambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "CommandSendLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_CommandSendLambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "CommandSendLambda"
+        }
+      ]
+    },
     "AMPLIFY_function_HydroNodeGetCurrentValuesFunction_deploymentBucketName": {
       "usedBy": [
         {
@@ -217,6 +285,22 @@
         }
       ]
     },
+    "AMPLIFY_function_hydroNodeMetaHandler_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeMetaHandler"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeMetaHandler_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeMetaHandler"
+        }
+      ]
+    },
     "AMPLIFY_function_hydroNodeS3GetSensorValuesFunction_deploymentBucketName": {
       "usedBy": [
         {
@@ -262,6 +346,22 @@
         {
           "category": "function",
           "resourceName": "regenfassMetaHandler"
+        }
+      ]
+    },
+    "AMPLIFY_function_sqsRespondLambda_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "sqsRespondLambda"
+        }
+      ]
+    },
+    "AMPLIFY_function_sqsRespondLambda_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "sqsRespondLambda"
         }
       ]
     },

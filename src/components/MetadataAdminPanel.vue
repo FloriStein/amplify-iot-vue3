@@ -1,100 +1,141 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 import { fetchAuthSession } from 'aws-amplify/auth'
 
-const fassId = 'fass1'
+const apiBaseUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/admin/meta'
+
 const idToken = ref(null)
 
+const vessels = ref([])
+const stations = ref([])
+const sensors = ref([])
+
+const selectedVessel = ref(null)
+const selectedStation = ref(null)
+const selectedSensor = ref(null)
+
 const metaData = ref({})
-const isLoading = ref(true)
+const isLoading = ref(false)
 const isSaving = ref(false)
 const saveMessage = ref('')
-const editableFields = ref(new Set())        // Speichert, welche Felder editierbar sind
-const selectedFields = ref(new Set())        // Speichert, welche Checkboxen selektiert wurden
 
-// Neue Felder hinzufügen
+const selectedFields = ref(new Set())
+
 const newFieldName = ref('')
 const newFieldValue = ref('')
 
-const apiBaseUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/admin'
+watch(selectedVessel, (v) => {
+  if (v) {
+    selectedStation.value = null
+    selectedSensor.value = null
+  }
+})
 
-// Authentifizierte Metadaten laden
-const fetchMeta = async () => {
-  isLoading.value = true
+watch(selectedStation, (s) => {
+  if (s) {
+    selectedVessel.value = null
+    selectedSensor.value = null
+  }
+})
+
+watch(selectedSensor, (s) => {
+  if (s) {
+    selectedVessel.value = null
+    selectedStation.value = null
+  }
+})
+
+async function loadToken() {
   try {
     const session = await fetchAuthSession()
     idToken.value = session.tokens?.idToken?.toString()
+  } catch (err) {
+    console.error('Fehler beim Laden des Tokens:', err)
+  }
+}
 
-    const res = await axios.get(`${apiBaseUrl}/meta/${fassId}`, {
+async function fetchDropdownData() {
+  isLoading.value = true
+  try {
+    const res = await axios.get(`${apiBaseUrl}?loadDropdowns=true`, {
       headers: {
         Authorization: `Bearer ${idToken.value}`,
         'Content-Type': 'application/json'
       }
     })
 
-    // Falls die API ein Array zurückgibt, nehmen wir das erste Element
-    const data = Array.isArray(res.data) ? res.data[0] || {} : res.data
-    // Entferne das Feld "id", falls vorhanden, damit es nicht angezeigt wird
-    if (data.id !== undefined) {
-      delete data.id
-    }
-    metaData.value = data
+    vessels.value = (res.data.vessels || []).map(v => ({
+      id: v.Vessel_ID,
+      name: v.Vessel_location
+    }))
+    stations.value = (res.data.stations || []).map(s => ({
+      id: s.Measuring_station_ID,
+      name: `Station ${s.Measuring_station_ID}`
+    }))
+    sensors.value = (res.data.sensors || []).map(s => ({
+      id: s.Sensor_ID,
+      name: s.Sensor_model
+    }))
+
+    if (vessels.value.length) selectedVessel.value = vessels.value[0].id
+    if (stations.value.length) selectedStation.value = stations.value[0].id
+    if (sensors.value.length) selectedSensor.value = sensors.value[0].id
+
   } catch (err) {
-    console.error('❌ Fehler beim Laden der Meta-Daten:', err)
+    console.error('Fehler beim Laden der Dropdown-Daten:', err)
   } finally {
     isLoading.value = false
   }
 }
 
-// Speichern: Nur selektierte Felder werden gesendet
-const saveMeta = async () => {
-  isSaving.value = true
+async function fetchMeta() {
+  isLoading.value = true
   saveMessage.value = ''
-  try {
-    // Erstelle ein Payload-Objekt nur mit den selektierten Feldern
-    const payload = {}
-    selectedFields.value.forEach(key => {
-      payload[key] = metaData.value[key]
-    })
+  selectedFields.value.clear()
 
-    await axios.put(`${apiBaseUrl}/meta/${fassId}`, payload, {
+  try {
+    let resource = null
+    let id = null
+
+    if (selectedSensor.value) {
+      resource = 'sensor'
+      id = selectedSensor.value
+    } else if (selectedStation.value) {
+      resource = 'station'
+      id = selectedStation.value
+    } else if (selectedVessel.value) {
+      resource = 'vessel'
+      id = selectedVessel.value
+    }
+
+    if (!resource || !id) {
+      metaData.value = {}
+      return
+    }
+
+    const res = await axios.get(`${apiBaseUrl}/${resource}/${id}`, {
       headers: {
         Authorization: `Bearer ${idToken.value}`,
         'Content-Type': 'application/json'
       }
     })
-    saveMessage.value = '✅ Erfolgreich gespeichert'
-    editableFields.value.clear()
-    selectedFields.value.clear()
-  } catch (err) {
-    console.error('❌ Fehler beim Speichern:', err)
-    saveMessage.value = '❌ Fehler beim Speichern'
-  } finally {
-    isSaving.value = false
-  }
-}
 
-// Löschen: Löscht den gesamten Metadatensatz
-const deleteMeta = async () => {
-  try {
-    await axios.delete(`${apiBaseUrl}/meta/${fassId}`, {
-      headers: {
-        Authorization: `Bearer ${idToken.value}`
-      }
-    })
-    saveMessage.value = '🗑️ Metadaten gelöscht'
+    const apiData = res.data?.data
+    const data = Array.isArray(apiData) ? apiData[0] || {} : apiData || {}
+
+    if (data.id !== undefined) delete data.id
+    metaData.value = data
+
+  } catch (err) {
+    console.error('Fehler beim Laden der Metadaten:', err)
     metaData.value = {}
-    editableFields.value.clear()
-    selectedFields.value.clear()
-  } catch (err) {
-    console.error('❌ Fehler beim Löschen:', err)
-    saveMessage.value = '❌ Fehler beim Löschen'
+  } finally {
+    isLoading.value = false
   }
 }
 
-// Checkbox toggeln
-const toggleFieldSelection = (key) => {
+function toggleFieldSelection(key) {
   if (selectedFields.value.has(key)) {
     selectedFields.value.delete(key)
   } else {
@@ -102,104 +143,194 @@ const toggleFieldSelection = (key) => {
   }
 }
 
-// Markierte Felder editierbar machen
-const enableEdit = () => {
-  editableFields.value = new Set(selectedFields.value)
-}
 
-// Neues Feld zur Meta-Daten hinzufügen
-const addNewField = () => {
+function addNewField() {
   const fieldName = newFieldName.value.trim()
   if (!fieldName) {
     alert('Bitte gib einen Feldnamen ein.')
     return
   }
-  // Füge das neue Feld nur hinzu, wenn es noch nicht existiert
   if (metaData.value[fieldName] !== undefined) {
     alert(`Das Feld "${fieldName}" existiert bereits.`)
     return
   }
-  // Füge das neue Feld hinzu; neuer Eintrag als Zeichenkette
   metaData.value[fieldName] = newFieldValue.value
-  // Setze die neuen Felder zurück
   newFieldName.value = ''
   newFieldValue.value = ''
 }
 
-onMounted(fetchMeta)
+async function saveMeta() {
+  isSaving.value = true
+  saveMessage.value = ''
+
+  try {
+    let resource = null
+    let id = null
+
+    if (selectedSensor.value) {
+      resource = 'sensor'
+      id = selectedSensor.value
+    } else if (selectedStation.value) {
+      resource = 'station'
+      id = selectedStation.value
+    } else if (selectedVessel.value) {
+      resource = 'vessel'
+      id = selectedVessel.value
+    }
+
+    if (!resource || !id) {
+      alert('Keine Ressource ausgewählt zum Speichern.')
+      return
+    }
+
+    const payload = {}
+    selectedFields.value.forEach(key => {
+      payload[key] = metaData.value[key]
+    })
+
+    await axios.put(`${apiBaseUrl}/${resource}/${id}`, payload, {
+      headers: {
+        Authorization: `Bearer ${idToken.value}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    saveMessage.value = 'Erfolgreich gespeichert'
+    selectedFields.value.clear()
+
+  } catch (err) {
+    console.error('Fehler beim Speichern:', err)
+    saveMessage.value = 'Fehler beim Speichern'
+  } finally {
+    isSaving.value = false
+  }
+}
+
+async function deleteField() {
+  if (selectedFields.value.size !== 1) {
+    alert('Bitte genau ein Feld zum Löschen auswählen.')
+    return
+  }
+
+  const fieldToDelete = Array.from(selectedFields.value)[0]
+
+  let resource = null
+  let id = null
+
+  if (selectedSensor.value) {
+    resource = 'sensor'
+    id = selectedSensor.value
+  } else if (selectedStation.value) {
+    resource = 'station'
+    id = selectedStation.value
+  } else if (selectedVessel.value) {
+    resource = 'vessel'
+    id = selectedVessel.value
+  }
+
+  if (!resource || !id) {
+    alert('Keine Ressource ausgewählt zum Löschen.')
+    return
+  }
+
+  if (confirm(`Soll das Feld "${fieldToDelete}" wirklich gelöscht werden? (Dies entfernt die gesamte Spalte aus der Datenbank)`)) {
+    try {
+      await axios.delete(`${apiBaseUrl}/${resource}/${id}?field=${fieldToDelete}`, {
+        headers: {
+          Authorization: `Bearer ${idToken.value}`
+        }
+      })
+
+      saveMessage.value = `Spalte "${fieldToDelete}" gelöscht.`
+      selectedFields.value.delete(fieldToDelete)
+      delete metaData.value[fieldToDelete]
+
+    } catch (err) {
+      console.error('Fehler beim Löschen der Spalte:', err)
+      saveMessage.value = 'Fehler beim Löschen der Spalte'
+    }
+  }
+}
+
+onMounted(async () => {
+  await loadToken()
+  await fetchDropdownData()
+  await fetchMeta()
+})
+
+watch([selectedVessel, selectedStation, selectedSensor], fetchMeta)
 </script>
 
 <template>
-  <div class="card">
-    <h2 class="card-title mb-4">Meta-Daten – {{ fassId }}</h2>
-
-    <div v-if="isLoading">
-      <p>Lade Daten...</p>
+  <div class="card p-6 max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold mb-6">Meta-Daten Verwaltung</h2>
+    <div v-if="isLoading" class="mb-4">Lade Daten...</div>
+    <div class="flex space-x-4 mb-6">
+      <div class="flex-1">
+        <label class="block font-semibold mb-1">Vessel auswählen</label>
+        <select v-model="selectedVessel" class="input input-bordered w-full">
+          <option v-for="v in vessels" :key="v.id" :value="v.id">
+            {{ v.name || v.id }}
+          </option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <label class="block font-semibold mb-1">Messstation auswählen</label>
+        <select v-model="selectedStation" class="input input-bordered w-full">
+          <option v-for="s in stations" :key="s.id" :value="s.id">
+            {{ s.name || s.id }}
+          </option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <label class="block font-semibold mb-1">Sensor auswählen</label>
+        <select v-model="selectedSensor" class="input input-bordered w-full">
+          <option v-for="s in sensors" :key="s.id" :value="s.id">
+            {{ s.name || s.id }}
+          </option>
+        </select>
+      </div>
     </div>
 
-    <form v-else @submit.prevent="saveMeta" class="space-y-4">
-      <!-- Bestehende Felder -->
-      <div
-          v-for="(value, key) in metaData"
-          :key="key"
-          class="flex items-center space-x-4"
-      >
-        <input
-            type="checkbox"
-            :checked="selectedFields.has(key)"
-            @change="toggleFieldSelection(key)"
-        />
-        <label class="w-40 font-medium capitalize">{{ String(key).replace(/_/g, ' ') }}</label>
+    <form @submit.prevent="saveMeta" class="space-y-4">
+      <div v-for="(value, key) in metaData" :key="key" class="flex items-center space-x-3">
+        <input type="checkbox" :checked="selectedFields.has(key)" @change="toggleFieldSelection(key)" />
+        <label class="w-40 font-medium capitalize">{{ key.replace(/_/g, ' ') }}</label>
         <input
             v-model="metaData[key]"
-            :disabled="!editableFields.has(key)"
             :type="typeof value === 'number' ? 'number' : 'text'"
             class="input input-bordered flex-1"
         />
       </div>
 
-      <!-- Neues Feld hinzufügen -->
       <div class="border p-4 rounded mt-6">
         <h3 class="font-semibold mb-2">Neues Feld hinzufügen</h3>
-        <div class="flex flex-col space-y-2">
-          <input
-              v-model="newFieldName"
-              placeholder="Feldname (z.B. neuer_parameter)"
-              class="input input-bordered"
-          />
-          <input
-              v-model="newFieldValue"
-              placeholder="Wert"
-              class="input input-bordered"
-          />
-          <button type="button" class="btn btn-secondary" @click="addNewField">
-            ➕ Feld hinzufügen
-          </button>
+        <div class="flex space-x-2">
+          <input v-model="newFieldName" placeholder="Feldname" class="input input-bordered flex-1" />
+          <input v-model="newFieldValue" placeholder="Wert" class="input input-bordered flex-1" />
+          <button type="button" class="btn btn-secondary" @click="addNewField">➕ Feld hinzufügen</button>
         </div>
       </div>
 
-      <!-- Aktionen -->
       <div class="flex items-center space-x-4 mt-6">
-        <button
-            type="button"
-            class="btn btn-outline"
-            @click="enableEdit"
-            :disabled="selectedFields.size === 0"
-        >
-          ✏️ Edit
-        </button>
         <button
             type="submit"
             class="btn btn-primary"
-            :disabled="isSaving || selectedFields.size === 0"
         >
-          {{ isSaving ? 'Speichern...' : 'Speichern' }}
+          Speichern
         </button>
-        <button type="button" class="btn btn-error" @click="deleteMeta">
-          🗑️ Löschen
+
+        <button
+            type="button"
+            class="btn btn-error"
+            @click="deleteField"
+            :disabled="selectedFields.size !== 1"
+        >
+          Löschen
         </button>
-        <span v-if="saveMessage">{{ saveMessage }}</span>
       </div>
+
+      <div v-if="saveMessage" class="mt-4 font-semibold">{{ saveMessage }}</div>
     </form>
   </div>
 </template>

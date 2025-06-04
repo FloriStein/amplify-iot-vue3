@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted, onBeforeUnmount, watch} from 'vue'
+import {ref, onMounted, onBeforeUnmount, watch, computed} from 'vue'
 import axios from 'axios'
 import { Chart } from 'chart.js/auto'
 import { fetchAuthSession } from 'aws-amplify/auth'
@@ -15,6 +15,18 @@ const sensors = ref([])
 const selectedVessel = ref(null)
 const selectedStation = ref(null)
 const selectedSensor = ref(null)
+
+const selectedVesselMeta = computed(() => {
+  return vessels.value.find(v => v.id === selectedVessel.value) ?? null
+})
+
+const selectedStationMeta = computed(() => {
+  return stations.value.find(s => s.id === selectedStation.value) ?? null
+})
+
+const selectedSensorMeta = computed(() => {
+  return sensors.value.find(s => s.id === selectedSensor.value) ?? null
+})
 
 
 watch([selectedStation, selectedSensor], async ([newStation, newSensor]) => {
@@ -52,10 +64,22 @@ const fetchVessels = async () => {
       }
     })
 
-    vessels.value = res.data.data.map(v => ({
-      id: v.Vessel_ID,
-      name: v.Vessel_location
-    }))
+    vessels.value = res.data.data.map(v => {
+      const vesselObj = {
+        id: v.Vessel_ID,
+        name: v.Vessel_location
+      }
+
+      const excludedKeys = ['Vessel_ID', 'Vessel_location']
+      for (const [key, value] of Object.entries(v)) {
+        if (!excludedKeys.includes(key)) {
+          const normalizedKey = key.toLowerCase()
+          vesselObj[normalizedKey] = value ?? 'unbekannt'
+        }
+      }
+
+      return vesselObj
+    })
 
     if (vessels.value.length > 0) {
       selectedVessel.value = vessels.value[0].id
@@ -67,7 +91,6 @@ const fetchVessels = async () => {
   }
 }
 
-
 const fetchStations = async (vesselId) => {
   try {
     const res = await axios.get(`${dataApiUrl}/meta/vessels?vessel_id=${vesselId}`, {
@@ -77,13 +100,22 @@ const fetchStations = async (vesselId) => {
       }
     })
 
-    stations.value = res.data.data.map(s => ({
-      id: s.Measuring_station_ID,   // z.B. "hydronode-1"
-      name: s.Measuring_station_ID,
-      vessel_id: vesselId
-    }))
+    stations.value = res.data.data.map(station => {
+      const stationObj = {
+        id: station.Measuring_station_ID,
+        name: station.Measuring_station_ID,
+        vessel_id: vesselId
+      }
 
-
+      const excludedKeys = ['Measuring_station_ID', 'Vessel_ID']
+      for (const [key, value] of Object.entries(station)) {
+        if (!excludedKeys.includes(key)) {
+          const normalizedKey = key.toLowerCase()
+          stationObj[normalizedKey] = value ?? 'unbekannt'
+        }
+      }
+      return stationObj
+    })
 
     if (stations.value.length > 0) {
       selectedStation.value = stations.value[0].id
@@ -103,23 +135,38 @@ const fetchSensors = async (stationId) => {
         'Content-Type': 'application/json'
       }
     })
+    sensors.value = res.data.data.map(s => {
+      const sensorObj = {
+        id: s.Sensor_ID,
+        name: s.Sensor_type,
+        station_id: s.Measuring_station_ID, // manuell gesetzt, nicht aus `s`
+        unit: s.Sensor_unit || 'unbekannt'
+      }
 
-    sensors.value = res.data.data.map(s => ({
-      id: s.Sensor_ID,
-      name: s.Sensor_type,
-      station_id: stationId,
-      unit: s.Sensor_unit
-    }))
+      const excludedKeys = ['Sensor_ID', 'Sensor_type', 'Sensor_unit', 'Measuring_station_ID']
+
+      for (const [key, value] of Object.entries(s)) {
+        if (!excludedKeys.includes(key)) {
+          const normalizedKey = key.toLowerCase()
+          sensorObj[normalizedKey] = value ?? 'unbekannt'
+        }
+      }
+      return sensorObj
+    })
+
 
     if (sensors.value.length > 0) {
       selectedSensor.value = sensors.value[0].id
+    } else {
+      console.warn('⚠️ Keine Sensoren gefunden für diese Station.')
     }
+
   } catch (err) {
     console.error('❌ Fehler beim Laden der Sensoren:', err)
   }
 }
-const fetchDeviceShadow = async (sensor) => {
 
+const fetchDeviceShadow = async (sensor) => {
   const sensorType = sensor.name
   const sensorUnit = sensor.unit || ''
   const stationId = sensor.station_id
@@ -177,7 +224,6 @@ const fetchDeviceShadow = async (sensor) => {
             y: {
               title: {
                 display: true,
-                //text: `${metricType} (${metricUnits[metricType] || ''})`
                 text: `${sensorType} (${sensorUnit})`
               }
             }
@@ -191,7 +237,7 @@ const fetchDeviceShadow = async (sensor) => {
 
   } catch (error) {
     if (error.code === 'ECONNABORTED') {
-      console.error('⏱️ Timeout beim API-Abruf:', error.message)
+      console.error('Timeout beim API-Abruf:', error.message)
     } else {
       console.error('❌ Fehler beim Abrufen der Daten:', error)
     }
@@ -224,13 +270,32 @@ onMounted(async () => {
     idToken.value = session.tokens?.idToken?.toString()
 
     await fetchVessels()
-    fetchDeviceShadow()
-    chartIntervalId = setInterval(() => {
-      fetchDeviceShadow()
-      sendRequest()
-    }, 2000)
-    sendRequest()
 
+    // Initiales Laden des DeviceShadow nur wenn Sensor verfügbar ist
+    if (selectedSensor.value) {
+      const sensorMeta = sensors.value.find(s => s.id === selectedSensor.value)
+      if (sensorMeta) {
+        await fetchDeviceShadow(sensorMeta)
+      } else {
+        console.warn('Kein passender Sensor beim Initialisieren gefunden')
+      }
+    } else {
+      console.warn('Kein Sensor ausgewählt beim Initialisieren')
+    }
+
+    // Automatische Aktualisierung alle 2 Sekunden
+    chartIntervalId = setInterval(() => {
+      const sensorMeta = sensors.value.find(s => s.id === selectedSensor.value)
+      if (sensorMeta) {
+        console.log('🔄 Periodischer fetchDeviceShadow mit Sensor:', sensorMeta)
+        fetchDeviceShadow(sensorMeta)
+        sendRequest()
+      } else {
+        console.warn('Kein Sensor für fetchDeviceShadow im Interval gefunden')
+      }
+    }, 2000)
+
+    sendRequest()
 
     pubsub.subscribe({ topics: 'esp32/responseDistance' }).subscribe({
       next: (data) => {
@@ -254,6 +319,7 @@ onMounted(async () => {
   }
 })
 
+
 onBeforeUnmount(() => {
   clearInterval(chartIntervalId)
   if (chartInstance) chartInstance.destroy()
@@ -264,7 +330,7 @@ onBeforeUnmount(() => {
   <div class="card">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
       <div>
-        <h2 class="card-title">Füllstandsanzeige – Fass 1</h2>
+        <h2 class="card-title">Sensormesswerte</h2>
         <p class="status-text">
           Status:
           <span :class="connected ? 'online' : 'offline'">
@@ -306,6 +372,35 @@ onBeforeUnmount(() => {
     <div class="chart-container">
       <h3 class="text-lg font-semibold text-gray-700 mb-2">Füllverlauf</h3>
       <canvas ref="chartRef" height="300"></canvas>
+    </div>
+    <div class="mt-6 space-y-4">
+      <!--  Vessel-Metadaten -->
+      <details v-if="selectedVesselMeta" class="border rounded p-4 bg-gray-50">
+        <summary class="font-semibold cursor-pointer">Vessel-Metadaten anzeigen</summary>
+        <div class="mt-2 space-y-1 text-sm text-gray-700">
+          <template v-for="(value, key) in selectedVesselMeta" :key="key">
+            <p><strong>{{ key }}:</strong> {{ value }}</p>
+          </template>
+        </div>
+      </details>
+      <!--  Station-Metadaten -->
+      <details v-if="selectedStationMeta" class="border rounded p-4 bg-gray-50">
+        <summary class="font-semibold cursor-pointer">Messstation-Metadaten anzeigen</summary>
+        <div class="mt-2 space-y-1 text-sm text-gray-700">
+          <template v-for="(value, key) in selectedStationMeta" :key="key">
+            <p><strong>{{ key }}:</strong> {{ value }}</p>
+          </template>
+        </div>
+      </details>
+      <!--  Sensor-Metadaten -->
+      <details v-if="selectedSensorMeta" class="border rounded p-4 bg-gray-50">
+        <summary class="font-semibold cursor-pointer">Sensor-Metadaten anzeigen</summary>
+        <div class="mt-2 space-y-1 text-sm text-gray-700">
+          <template v-for="(value, key) in selectedSensorMeta" :key="key">
+            <p><strong>{{ key }}:</strong> {{ value }}</p>
+          </template>
+        </div>
+      </details>
     </div>
   </div>
 </template>

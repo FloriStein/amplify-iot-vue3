@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import { fetchAuthSession } from 'aws-amplify/auth'
 
 const users = ref([])
@@ -13,12 +14,12 @@ const fetchUsers = async () => {
     const session = await fetchAuthSession()
     const token = session.tokens.idToken
 
-    const res = await fetch(apiUrl, {
+    const res = await axios.get(apiUrl, {
       headers: {
         Authorization: token
       }
     })
-    users.value = await res.json()
+    users.value = res.data
   } catch (err) {
     console.error('Fehler beim Laden der Benutzer:', err)
   }
@@ -30,13 +31,11 @@ const addUser = async () => {
     const session = await fetchAuthSession()
     const token = session.tokens.idToken
 
-    await fetch(apiUrl, {
-      method: 'POST',
+    await axios.post(apiUrl, { email: newUserEmail.value }, {
       headers: {
         Authorization: token,
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email: newUserEmail.value })
+      }
     })
 
     newUserEmail.value = ''
@@ -51,8 +50,7 @@ const takeAction = async (username, action) => {
     const session = await fetchAuthSession()
     const token = session.tokens.idToken
 
-    await fetch(`${apiUrl}/${username}`, {
-      method: 'DELETE',
+    await axios.delete(`${apiUrl}/${username}`, {
       headers: {
         Authorization: token
       }
@@ -64,12 +62,11 @@ const takeAction = async (username, action) => {
 }
 
 onMounted(fetchUsers)
-
 </script>
 
 <template>
   <div class="card">
-    <h2 class="card-title mb-4">🛡 Benutzerverwaltung</h2>
+    <h2 class="card-title mb-4">Benutzerverwaltung</h2>
 
     <form @submit.prevent="addUser" class="mb-4 flex gap-2 justify-center">
       <input v-model="newUserEmail" type="email" placeholder="E-Mail eingeben" class="border px-4 py-2 rounded w-64" required />

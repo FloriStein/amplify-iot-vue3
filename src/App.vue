@@ -11,7 +11,6 @@
   <authenticator hide-sign-up>
     <template v-slot="{ user, signOut }">
       <Dashboard />
-     <!-- <DistanzSensor />-->
       <button @click="signOut">Abmelden</button>
     </template>
   </authenticator>

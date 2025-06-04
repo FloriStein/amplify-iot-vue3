@@ -32,16 +32,6 @@
         ]
       }
     },
-    "/admin/meta": {
-      "name": "/admin/meta",
-      "lambdaFunction": "regenfassMetaHandler",
-      "permissions": {
-        "setting": "private",
-        "auth": [
-          "create"
-        ]
-      }
-    },
     "/admin/meta/{fassId}": {
       "name": "/admin/meta/{fassId}",
       "lambdaFunction": "regenfassMetaHandler",
@@ -89,6 +79,85 @@
         "setting": "private",
         "auth": [
           "read"
+        ]
+      }
+    },
+    "/meta": {
+      "name": "/meta",
+      "lambdaFunction": "hydroNodeMetaHandler",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read",
+          "update",
+          "delete"
+        ]
+      }
+    },
+    "/meta/vessel/{location}": {
+      "name": "/meta/vessel/{location}",
+      "lambdaFunction": "hydroNodeGetSensorDropdown",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/admin/meta/vessel/{vessel-location}": {
+      "name": "/admin/meta/vessel/{vessel-location}",
+      "lambdaFunction": "hydroNodeMetaHandler",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read",
+          "update",
+          "delete"
+        ]
+      }
+    },
+    "/admin/meta/sensor/{id}": {
+      "name": "/admin/meta/sensor/{id}",
+      "lambdaFunction": "hydroNodeMetaHandler",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read",
+          "update",
+          "delete"
+        ]
+      }
+    },
+    "/admin/meta/station/{id}": {
+      "name": "/admin/meta/station/{id}",
+      "lambdaFunction": "hydroNodeMetaHandler",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read",
+          "update",
+          "delete"
+        ]
+      }
+    },
+    "/admin/meta": {
+      "name": "/admin/meta",
+      "lambdaFunction": "hydroNodeMetaHandler",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/admin/command": {
+      "name": "/admin/command",
+      "lambdaFunction": "CommandSendLambda",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create"
         ]
       }
     }

@@ -5,8 +5,6 @@ const {
 } = require('@aws-sdk/client-secrets-manager');
 
 const secretsClient = new SecretsManagerClient({ region: 'eu-central-1' });
-
-const USER_POOL_ID = process.env.USER_POOL_ID || process.env.AUTH_AMPLIFYIOTVUE37AA4154A_USERPOOLID;
 const DB_SECRET_NAME = process.env.DB_SECRET_NAME;
 const debug = process.env.DEBUG === 'true';
 
@@ -22,7 +20,7 @@ async function getDbCredentials(secretName) {
     return parsed;
 }
 
-// 🔌 Pool erstellen oder zwischenspeichern
+// Pool erstellen oder zwischenspeichern
 async function getPool() {
     if (pool) return pool;
 
@@ -77,13 +75,43 @@ exports.handler = async (event) => {
 
         log('📡 Verbunden mit der Datenbank');
 
-        if (httpMethod === 'GET') {
-            log('📘 Führe SELECT aus: SELECT * FROM regenfass_meta');
-            const [rows] = await connection.query('SELECT * FROM regenfass_meta');
-            connection.release();
-            log('✅ Daten geladen:', rows);
-            return respond(200, rows);
+        if (method === 'GET') {
+            const { resource, loadDropdowns } = event.queryStringParameters || {};
+
+            // Wenn Dropdown-Daten geladen werden sollen
+            if (loadDropdowns === 'true') {
+                // Hole alle Vessels
+                const [vessels] = await conn.execute('SELECT id, name FROM Vessel ORDER BY name');
+                // Alle Measuring stations
+                const [stations] = await conn.execute('SELECT id, name FROM Measuring_station ORDER BY name');
+                // Alle Sensors
+                const [sensors] = await conn.execute('SELECT id, name FROM Sensor ORDER BY name');
+
+                return respond(200, {
+                    vessels,
+                    stations,
+                    sensors
+                });
+            }
+
+            // Alte Logik für resource-basierte Daten
+            const table = TABLES[resource];
+            if (!table) return respond(400, { error: "Ungültige resource" });
+
+            const filters = event.queryStringParameters || {};
+            delete filters.resource;
+            delete filters.loadDropdowns;
+
+            const whereClause = Object.keys(filters).map(key => `${key} = ?`).join(' AND ');
+            const values = Object.values(filters);
+
+            const [rows] = await conn.execute(
+                `SELECT * FROM ${table} ${whereClause ? 'WHERE ' + whereClause : ''}`,
+                values
+            );
+            return respond(200, { data: rows });
         }
+
 
         if (httpMethod === 'POST' && body) {
             const data = JSON.parse(body);

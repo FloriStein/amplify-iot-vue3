@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import { fetchAuthSession } from 'aws-amplify/auth'
 
 const subscribed = ref(false)
@@ -16,21 +17,23 @@ const updateSubscription = async (action) => {
     const session = await fetchAuthSession()
     const token = session.tokens.idToken
 
-    const res = await fetch(apiUrl, {
-      method: action === 'subscribe' ? 'PUT' : 'DELETE',
+    const config = {
       headers: {
         Authorization: token,
         'Content-Type': 'application/json'
       }
-    })
+    }
 
-    const data = await res.json()
-
-    if (!res.ok) throw new Error(data.error || data.message || 'Fehler bei der Anfrage')
+    let response
+    if (action === 'subscribe') {
+      response = await axios.put(apiUrl, {}, config)
+    } else {
+      response = await axios.delete(apiUrl, config)
+    }
 
     subscribed.value = action === 'subscribe'
   } catch (err) {
-    error.value = err.message
+    error.value = err.response?.data?.error || err.message || 'Unbekannter Fehler'
   } finally {
     loading.value = false
   }
@@ -44,20 +47,15 @@ const fetchSubscriptionStatus = async () => {
     const session = await fetchAuthSession()
     const token = session.tokens.idToken
 
-    const res = await fetch(apiUrl, {
-      method: 'GET',
+    const response = await axios.get(apiUrl, {
       headers: {
         Authorization: token
       }
     })
 
-    const data = await res.json()
-
-    if (!res.ok) throw new Error(data.error || data.message || 'Fehler beim Statusabruf')
-
-    subscribed.value = !!data.subscribed
+    subscribed.value = !!response.data.subscribed
   } catch (err) {
-    error.value = err.message
+    error.value = err.response?.data?.error || err.message || 'Fehler beim Statusabruf'
   } finally {
     loading.value = false
   }
@@ -70,9 +68,8 @@ onMounted(() => {
 
 <template>
   <div class="card mt-6">
-    <h2 class="card-title mb-2">🔔 Benachrichtigungen</h2>
+    <h2 class="card-title mb-2">Benachrichtigungen</h2>
     <p class="mb-4 text-sm text-gray-600">Empfange E-Mail-Benachrichtigungen über neue Sensordaten.</p>
-
     <div class="flex items-center gap-4">
       <button
           @click="updateSubscription('subscribe')"
@@ -90,7 +87,6 @@ onMounted(() => {
       </button>
       <span v-if="loading" class="text-sm text-gray-500">Wird verarbeitet…</span>
     </div>
-
     <p v-if="error" class="mt-2 text-sm text-red-600">{{ error }}</p>
   </div>
 </template>
