@@ -1,18 +1,18 @@
 <script setup>
-  import { Amplify } from 'aws-amplify';
-  import awsExports from './aws-exports';
-  import { Authenticator } from '@aws-amplify/ui-vue';
-  import '@aws-amplify/ui-vue/styles.css';
-  import Dashboard from "./components/Dashboard.vue";
-  Amplify.configure(awsExports);
+  import { onMounted } from 'vue'
+  import { initFlowbite } from 'flowbite'
+  import Navbar from './components/navigation/Navbar.vue'
+import LoadingOverlay from './components/LoadingOverlay.vue';
+
+  onMounted(() => {
+    initFlowbite();
+  })
 </script>
 
 <template>
-  <authenticator hide-sign-up>
-    <template v-slot="{ user, signOut }">
-      <Dashboard />
-      <button @click="signOut">Abmelden</button>
-    </template>
-  </authenticator>
+  <div>
+    <Navbar/>
+    <RouterView/>
+  </div>
 </template>
 

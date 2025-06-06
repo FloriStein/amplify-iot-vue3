@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@400;700&family=Dancing+Script:wght@400&display=swap');
+
+@layer base {
+  :root {
+    --background: #F2FAFC;
+    --overlay: #f2fafcbb;
+    --foreground: #1B2A41;
+
+    --primary: #4AA3BA;
+    --primary-hover: #6BC6D1;
+    --primary-foreground: #FFFFFF;
+
+    --secondary: #3B9C7B;
+    --secondary-hover: #55B89B;
+    --secondary-foreground: #FFFFFF;
+
+    --accent: #FF8360;
+    --accent-hover: #FF9A7B;
+    --accent-foreground: #FFFFFF;
+
+    --muted: #E2EEF0;
+    --muted-hover: #D0E5E8;
+    --muted-foreground: #456268;
+
+    --navbar: #1B2A41;
+    --navbar-foreground: #E3F6F8;
+    --navbar-hover: #4AA3BA;
+
+    --table: #FFFFFF;
+    --table-head: #FFFFFF;
+    --table-foreground: #1B2A41;
+    --table-hover: #E2EEF0;
+
+    --card: #FFFFFF;
+    --card-foreground: #1B2A41;
+    --card-hover: #E2EEF0;
+
+    --modal: #FFFFFF;
+    --modal-foreground: #1B2A41;
+    --modal-hover: #E2EEF0;
+
+    --input: #F0F9FB;
+    --input-foreground: #1B2A41;
+
+    --placeholder: #7DA6B2;
+    --border: #B7DDE5;
+  }
+
+
+  .dark {
+    --background: #0F1C24;
+    --overlay: #0f1c2488;
+    --foreground: #DCEAF0;
+
+    --primary: #4AA3BA;
+    --primary-hover: #6BC6D1;
+    --primary-foreground: #000000;
+
+    --secondary: #3B9C7B;
+    --secondary-hover: #55B89B;
+    --secondary-foreground: #FFFFFF;
+
+    --accent: #FF8360;
+    --accent-hover: #FF9A7B;
+    --accent-foreground: #FFFFFF;
+
+    --muted: #29404B;
+    --muted-hover: #3A5866;
+    --muted-foreground: #DCEAF0;
+
+    --navbar: #15222E;
+    --navbar-foreground: #B7DDE5;
+    --navbar-hover: #4AA3BA;
+
+    --table: #2e4252;
+    --table-hover: #344852;
+    --table-head: #1C2C38;
+    --table-head-hover: #253746;
+    --table-foreground: #DCEAF0;
+
+    --card: #2d4557;
+    --card-foreground: #DCEAF0;
+    --card-hover: #29404B;
+
+    --modal: #1C2C38;
+    --modal-foreground: #DCEAF0;
+    --modal-hover: #29404B;
+
+    --input: #223642;
+    --input-hover: #344855;
+    --input-foreground: #DCEAF0;
+
+    --placeholder: #A3C3CC;
+    --border: #8a9b9e;
+    --radius: 0.5rem;
+
+    --vis-tooltip-background-color: none !important;
+    --vis-tooltip-border-color: none !important;
+    --vis-tooltip-text-color: none !important;
+    --vis-tooltip-shadow-color: none !important;
+    --vis-tooltip-backdrop-filter: none !important;
+    --vis-tooltip-padding: none !important;
+
+    --vis-primary-color: var(--primary);
+    --vis-secondary-color: var(--secondary);
+    --vis-text-color: var(--muted-foreground);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  .card {
+    @apply bg-card text-card-foreground p-8 border border-border rounded rounded-2xl;
+  }
+
+  .card-title {
+    @apply w-full text-center text-3xl
+  }
+
+  .value-badge {
+    @apply bg-primary inline-block text-primary-foreground w-16 h-16 text-xl p-4 border border-border rounded rounded-full;
+  }
+}
+
+@layer legacy {
+
+}
