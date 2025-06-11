@@ -9,7 +9,7 @@ const apiBaseUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/de
 // ID-Token für die Authentifizierung mit AWS Cognito
 const idToken = ref(null)
 
-// Daten für Dropdowns (Schiffe, Stationen, Sensoren)
+// Daten für Dropdowns (Vessel, Stationen, Sensoren)
 const vessels = ref([])
 const stations = ref([])
 const sensors = ref([])

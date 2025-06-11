@@ -24,7 +24,7 @@
             "Arn"
           ],
           "category": "function",
-          "resourceName": "regenfassMetaHandler"
+          "resourceName": "hydroNodeMetaHandler"
         },
         {
           "attributes": [
@@ -32,7 +32,39 @@
             "Arn"
           ],
           "category": "function",
-          "resourceName": "hydroNodeS3GetSensorValuesFunction"
+          "resourceName": "CommandSendLambda"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "hydroNodeGetMetadataFunction"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "hydroNodeGetTimeFrameFunction"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "hydroNodegetAggregatedDataFunction"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "hydroNodeGetSchemaFunction"
         },
         {
           "attributes": [
@@ -48,23 +80,15 @@
             "Arn"
           ],
           "category": "function",
+          "resourceName": "hydroNodeGetAggregateFunction"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
           "resourceName": "hydroNodeGetSensorDropdown"
-        },
-        {
-          "attributes": [
-            "Name",
-            "Arn"
-          ],
-          "category": "function",
-          "resourceName": "hydroNodeMetaHandler"
-        },
-        {
-          "attributes": [
-            "Name",
-            "Arn"
-          ],
-          "category": "function",
-          "resourceName": "CommandSendLambda"
         }
       ],
       "providerPlugin": "awscloudformation",
@@ -139,7 +163,37 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
+    "hydroNodeAthenaStoreCacheFunction": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "hydroNodeCreateNewRessourceFunction": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "hydroNodeGetAggregateFunction": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "hydroNodeGetMetadataFunction": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "hydroNodeGetSchemaFunction": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "hydroNodeGetSensorDropdown": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "hydroNodeGetTimeFrameFunction": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
@@ -149,12 +203,12 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
-    "hydroNodeS3GetSensorValuesFunction": {
+    "hydroNodeStoreSensorDataFunction": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
-    "hydroNodeStoreSensorDataFunction": {
+    "hydroNodegetAggregatedDataFunction": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
@@ -269,6 +323,86 @@
         }
       ]
     },
+    "AMPLIFY_function_hydroNodeAthenaStoreCacheFunction_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeAthenaStoreCacheFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeAthenaStoreCacheFunction_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeAthenaStoreCacheFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeCreateNewRessourceFunction_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeCreateNewRessourceFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeCreateNewRessourceFunction_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeCreateNewRessourceFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeGetAggregateFunction_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeGetAggregateFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeGetAggregateFunction_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeGetAggregateFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeGetMetadataFunction_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeGetMetadataFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeGetMetadataFunction_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeGetMetadataFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeGetSchemaFunction_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeGetSchemaFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeGetSchemaFunction_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeGetSchemaFunction"
+        }
+      ]
+    },
     "AMPLIFY_function_hydroNodeGetSensorDropdown_deploymentBucketName": {
       "usedBy": [
         {
@@ -282,6 +416,22 @@
         {
           "category": "function",
           "resourceName": "hydroNodeGetSensorDropdown"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeGetTimeFrameFunction_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeGetTimeFrameFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodeGetTimeFrameFunction_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodeGetTimeFrameFunction"
         }
       ]
     },
@@ -301,22 +451,6 @@
         }
       ]
     },
-    "AMPLIFY_function_hydroNodeS3GetSensorValuesFunction_deploymentBucketName": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "hydroNodeS3GetSensorValuesFunction"
-        }
-      ]
-    },
-    "AMPLIFY_function_hydroNodeS3GetSensorValuesFunction_s3Key": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "hydroNodeS3GetSensorValuesFunction"
-        }
-      ]
-    },
     "AMPLIFY_function_hydroNodeStoreSensorDataFunction_deploymentBucketName": {
       "usedBy": [
         {
@@ -330,6 +464,22 @@
         {
           "category": "function",
           "resourceName": "hydroNodeStoreSensorDataFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodegetAggregatedDataFunction_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodegetAggregatedDataFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_hydroNodegetAggregatedDataFunction_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "hydroNodegetAggregatedDataFunction"
         }
       ]
     },

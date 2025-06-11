@@ -12,6 +12,7 @@
     "@aws-amplify/cli-extensibility-helper": "^2.4.12",
     "@aws-amplify/pubsub": "^6.1.53",
     "@aws-amplify/ui-vue": "^4.3.1",
+    "@aws-sdk/client-athena": "^3.826.0",
     "@aws-sdk/client-dynamodb": "^3.816.0",
     "@aws-sdk/client-iot-data-plane": "^3.821.0",
     "@aws-sdk/client-s3": "^3.797.0",
@@ -31,7 +32,9 @@
     "chart.js": "^4.4.8",
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^4.1.0",
+    "luxon": "^3.6.1",
     "mysql2": "^3.14.1",
+    "redis": "^5.5.6",
     "vue": "^3.5.13",
     "vue-chartjs": "^5.3.2"
   },

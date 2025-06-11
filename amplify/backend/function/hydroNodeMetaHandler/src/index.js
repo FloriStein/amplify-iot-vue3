@@ -59,7 +59,7 @@ exports.handler = async (event) => {
     console.log('➡️ Query:', queryStringParameters || {});
 
     try {
-        // ✳️ Neue Spalte hinzufügen: POST /admin/meta/:resource/:id/add-field
+        //  Neue Spalte hinzufügen: POST /admin/meta/:resource/:id/add-field
         if (httpMethod === 'POST' && pathParts[4] === 'add-field') {
             const resource = pathParts[2];
             const meta = RESOURCE_META[resource];
@@ -86,7 +86,7 @@ exports.handler = async (event) => {
         }
 
 
-        // 📋 Dropdowns laden
+        // Dropdowns laden
         if (isDropdownRequest) {
             const [vessels] = await pool.execute('SELECT Vessel_ID, Vessel_location FROM Vessel ORDER BY Vessel_location');
             const [stations] = await pool.execute('SELECT Measuring_station_ID FROM Measuring_station ORDER BY Measuring_station_ID');

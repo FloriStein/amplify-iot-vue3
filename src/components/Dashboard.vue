@@ -8,6 +8,7 @@ import AdminPanel from "./AdminPanel.vue"
 import MetadataAdminPanel from "./MetadataAdminPanel.vue"
 import SubscriptionSwitch from './SubscriptionSwitch.vue'
 import CommandPanel from "./CommandPanel.vue"
+import CreateMetadataAdminPanel from "./CreateMetadataAdminPanel.vue"
 
 // Reaktive Variable zur Bestimmung, ob der Benutzer Admin ist
 const isAdmin = ref(false)
@@ -40,6 +41,7 @@ onMounted(() => {
     <SubscriptionSwitch/>
     <AdminPanel v-if="isAdmin" class="mt-6" />
     <MetadataAdminPanel v-if="isAdmin" class="mt-6" />
+    <CreateMetadataAdminPanel v-if="isAdmin" class="mt-6" />
     <CommandPanel v-if="isAdmin" class="mt-6" />
   </div>
 </template>

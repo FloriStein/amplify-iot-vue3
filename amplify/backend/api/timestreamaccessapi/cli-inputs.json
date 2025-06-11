@@ -32,56 +32,6 @@
         ]
       }
     },
-    "/admin/meta/{fassId}": {
-      "name": "/admin/meta/{fassId}",
-      "lambdaFunction": "regenfassMetaHandler",
-      "permissions": {
-        "setting": "private",
-        "auth": [
-          "delete"
-        ]
-      }
-    },
-    "/data/{thing}": {
-      "name": "/data/{thing}",
-      "lambdaFunction": "hydroNodeS3GetSensorValuesFunction",
-      "permissions": {
-        "setting": "private",
-        "auth": [
-          "read"
-        ]
-      }
-    },
-    "/data": {
-      "name": "/data",
-      "lambdaFunction": "hydroNodeS3GetSensorValuesFunction",
-      "permissions": {
-        "setting": "private",
-        "auth": [
-          "read"
-        ]
-      }
-    },
-    "/{node-id}/data": {
-      "name": "/{node-id}/data",
-      "lambdaFunction": "HydroNodeGetCurrentValuesFunction",
-      "permissions": {
-        "setting": "private",
-        "auth": [
-          "read"
-        ]
-      }
-    },
-    "/meta/vessels": {
-      "name": "/meta/vessels",
-      "lambdaFunction": "hydroNodeGetSensorDropdown",
-      "permissions": {
-        "setting": "private",
-        "auth": [
-          "read"
-        ]
-      }
-    },
     "/meta": {
       "name": "/meta",
       "lambdaFunction": "hydroNodeMetaHandler",
@@ -92,16 +42,6 @@
           "read",
           "update",
           "delete"
-        ]
-      }
-    },
-    "/meta/vessel/{location}": {
-      "name": "/meta/vessel/{location}",
-      "lambdaFunction": "hydroNodeGetSensorDropdown",
-      "permissions": {
-        "setting": "private",
-        "auth": [
-          "read"
         ]
       }
     },
@@ -158,6 +98,109 @@
         "setting": "private",
         "auth": [
           "create"
+        ]
+      }
+    },
+    "/meta/vessel/all": {
+      "name": "/meta/vessel/all",
+      "lambdaFunction": "hydroNodeGetMetadataFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/meta/sensor/all": {
+      "name": "/meta/sensor/all",
+      "lambdaFunction": "hydroNodeGetMetadataFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/meta/station/all": {
+      "name": "/meta/station/all",
+      "lambdaFunction": "hydroNodeGetMetadataFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/meta/app/timeframe": {
+      "name": "/meta/app/timeframe",
+      "lambdaFunction": "hydroNodeGetTimeFrameFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/data/aggregate": {
+      "name": "/data/aggregate",
+      "lambdaFunction": "hydroNodegetAggregatedDataFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/meta/schema": {
+      "name": "/meta/schema",
+      "lambdaFunction": "hydroNodeGetSchemaFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/data/now": {
+      "name": "/data/now",
+      "lambdaFunction": "HydroNodeGetCurrentValuesFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/data/cache/aggregate": {
+      "name": "/data/cache/aggregate",
+      "lambdaFunction": "hydroNodeGetAggregateFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/meta/vms": {
+      "name": "/meta/vms",
+      "lambdaFunction": "hydroNodeGetSensorDropdown",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/meta/vessel": {
+      "name": "/meta/vessel",
+      "lambdaFunction": "hydroNodeMetaHandler",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read",
+          "update",
+          "delete"
         ]
       }
     }

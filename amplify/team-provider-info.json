@@ -43,11 +43,7 @@
         },
         "regenfassMetaHandler": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/regenfassMetaHandler-38774b61636f6a746674-build.zip"
-        },
-        "hydroNodeS3GetSensorValuesFunction": {
-          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/hydroNodeS3GetSensorValuesFunction-557141786e3057577632-build.zip"
+          "s3Key": "amplify-builds/regenfassMetaHandler-56477a7a47684c553255-build.zip"
         },
         "hydroNodeStoreSensorDataFunction": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
@@ -63,7 +59,7 @@
         },
         "hydroNodeMetaHandler": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/hydroNodeMetaHandler-304738314c4a6374524b-build.zip"
+          "s3Key": "amplify-builds/hydroNodeMetaHandler-5938705867306f537446-build.zip"
         },
         "CommandSendLambda": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
@@ -76,6 +72,34 @@
         "sqsRespondLambda": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
           "s3Key": "amplify-builds/sqsRespondLambda-476c6277314146467941-build.zip"
+        },
+        "hydroNodeGetMetadataFunction": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/hydroNodeGetMetadataFunction-6348484a7a5743416937-build.zip"
+        },
+        "hydroNodeGetTimeFrameFunction": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/hydroNodeGetTimeFrameFunction-777147766e4577655467-build.zip"
+        },
+        "hydroNodegetAggregatedDataFunction": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/hydroNodegetAggregatedDataFunction-364d67416d754e794368-build.zip"
+        },
+        "hydroNodeGetSchemaFunction": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/hydroNodeGetSchemaFunction-47796d616943376f422f-build.zip"
+        },
+        "hydroNodeAthenaStoreCacheFunction": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/hydroNodeAthenaStoreCacheFunction-7146533855667a316a4b-build.zip"
+        },
+        "hydroNodeGetAggregateFunction": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/hydroNodeGetAggregateFunction-3945596272634e723466-build.zip"
+        },
+        "hydroNodeCreateNewRessourceFunction": {
+          "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
+          "s3Key": "amplify-builds/hydroNodeCreateNewRessourceFunction-53426d6a5a787a774d71-build.zip"
         }
       },
       "storage": {

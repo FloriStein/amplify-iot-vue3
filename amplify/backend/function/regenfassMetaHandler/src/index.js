@@ -41,7 +41,7 @@ async function getPool() {
     return pool;
 }
 
-// 📋 Debug-Logging
+// Debug-Logging
 function log(...args) {
     if (debug) console.log(...args);
 }
@@ -73,7 +73,7 @@ exports.handler = async (event) => {
         const pool = await getPool();
         const connection = await pool.getConnection();
 
-        log('📡 Verbunden mit der Datenbank');
+        log('Verbunden mit der Datenbank');
 
         if (method === 'GET') {
             const { resource, loadDropdowns } = event.queryStringParameters || {};
