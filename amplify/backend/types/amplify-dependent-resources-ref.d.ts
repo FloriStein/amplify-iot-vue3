@@ -46,6 +46,13 @@ export type AmplifyDependentResourcesAttributes = {
       "Name": "string",
       "Region": "string"
     },
+    "cachLoadTestFunction": {
+      "Arn": "string",
+      "LambdaExecutionRole": "string",
+      "LambdaExecutionRoleArn": "string",
+      "Name": "string",
+      "Region": "string"
+    },
     "distanceAlertlambda": {
       "Arn": "string",
       "LambdaExecutionRole": "string",

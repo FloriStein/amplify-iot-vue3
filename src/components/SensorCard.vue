@@ -335,6 +335,38 @@ onMounted(async () => {
 
     await fetchVessels()
 
+    axios.get(`${dataApiUrl}/data/test`, {
+      headers: {
+        Authorization: `Bearer ${idToken.value}`,
+        'Content-Type': 'application/json'
+      }
+    }).then(response => {
+      console.log('Erfolg:', response.data);
+    }).catch(error => {
+      console.error('Fehler:', error.response?.data ?? error);
+    });
+
+
+
+
+    /*axios.get(`${dataApiUrl}/data/cache/aggregate`, {
+      headers: {
+        Authorization: `Bearer ${idToken.value}`,
+        'Content-Type': 'application/json'
+      },
+      params: {
+        nodeId: 'hydronode-1',
+        metricType: 'temperature',
+        timeframe: 'DAYS'
+      }
+    })
+        .then(response => {
+          console.log('Erfolg:', response.data);
+        })
+        .catch(error => {
+          console.error('Fehler:', error);
+        });*/
+
     if (selectedSensor.value && selectedTimeframe.value) {
       const sensorMeta = sensors.value.find(s => s.id === selectedSensor.value)
       if (sensorMeta) {

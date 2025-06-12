@@ -203,6 +203,27 @@
           "delete"
         ]
       }
+    },
+    "/admin/meta/create": {
+      "name": "/admin/meta/create",
+      "lambdaFunction": "hydroNodeCreateNewRessourceFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read"
+        ]
+      }
+    },
+    "/data/test": {
+      "name": "/data/test",
+      "lambdaFunction": "cachLoadTestFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
     }
   }
 }

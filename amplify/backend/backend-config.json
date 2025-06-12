@@ -89,6 +89,22 @@
           ],
           "category": "function",
           "resourceName": "hydroNodeGetSensorDropdown"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "hydroNodeCreateNewRessourceFunction"
+        },
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "cachLoadTestFunction"
         }
       ],
       "providerPlugin": "awscloudformation",
@@ -155,6 +171,11 @@
           "resourceName": "amplifyiotvue37aa4154a"
         }
       ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "cachLoadTestFunction": {
+      "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
@@ -304,6 +325,22 @@
         {
           "category": "function",
           "resourceName": "adminUserManager"
+        }
+      ]
+    },
+    "AMPLIFY_function_cachLoadTestFunction_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "cachLoadTestFunction"
+        }
+      ]
+    },
+    "AMPLIFY_function_cachLoadTestFunction_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "cachLoadTestFunction"
         }
       ]
     },
