@@ -26,21 +26,19 @@
     onMounted(async () => {
         await mqttClient.startIfAuthenticated();
         mqttClient.clear();
-        mqttClient.subscribeToTopic(`/${id}/command/to-node`, (message) => {
+        mqttClient.subscribeToTopic(`${id}/command/to-node`, (command) => {
             if(!store.commandHistory[id])
                 store.commandHistory[id] = [];
 
-            const command = JSON.parse(message);
             store.commandHistory[id].push({timestamp: Date.now(), direction: "OUTBOUND", command: command.key, message: command.payload});
         });
-        mqttClient.subscribeToTopic(`/${id}/command/to-aws`, (message) => {
+        mqttClient.subscribeToTopic(`${id}/command/to-aws`, (command) => {
             if(!store.commandHistory[id])
                 store.commandHistory[id] = [];
 
-            const command = JSON.parse(message);
             store.commandHistory[id].push({timestamp: Date.now(), direction: "INBOUND", command: command.key, message: command.payload});
         });
-        mqttClient.subscribeToTopic(`/$aws/things/${id}/shadow/update`, (message) => {
+        mqttClient.subscribeToTopic(`$aws/things/${id}/shadow/update`, (message) => {
             store.fetchSensorData();
         });
     });

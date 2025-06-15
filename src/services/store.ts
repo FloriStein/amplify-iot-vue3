@@ -10,6 +10,7 @@ export const useStore = defineStore('auth', () => {
   const loading = ref<boolean>(false);
   const vessels = ref<MetaData[] | null>(null);
   const nodes = ref<MetaData[] | null>(null);
+  const sensors = ref<MetaData[] | null>(null);
   const timeframes = ref<string[]>([]);
   const commandHistory = ref<{[key: string] : CommandLog[]}>({});
 
@@ -105,7 +106,7 @@ export const useStore = defineStore('auth', () => {
 
     var containsDistance = false;
     try{
-      const sensorMetas = await getSensors(id);
+      const sensorMetas = await getSensorsForNode(id);
       console.log("Sensor Metas: ", sensorMetas);
       for(const meta of sensorMetas) {
         if(meta.Sensor_type == "distance"){
@@ -199,7 +200,18 @@ export const useStore = defineStore('auth', () => {
     apiCall(async () => nodes.value = await api.fetchAllNodes());
   }
 
-  async function getSensors(nodeID : string) {
+  async function fetchSensors() {
+    await apiCall(async () => {
+      try {
+        sensors.value = await api.fetchAllSensors();
+      }
+      catch(ex){
+        console.error(ex);
+      }
+    });
+  }
+
+  async function getSensorsForNode(nodeID : string) {
     await fetchUser();
 
     if(user.value == null)
@@ -344,6 +356,52 @@ export const useStore = defineStore('auth', () => {
     }
   }
 
+  async function createResource(type: string, data : any) {
+    try {
+      await api.createResource(type, data);
+      switch(type){
+        case "measuring_station": await fetchNodes(); break;
+        case "vessel": await fetchVessels(); break;
+        case "sensor": await fetchSensors(); break;
+        default: break;
+      }
+    }
+    catch(ex) {
+      console.log("Failed to create resource: ", ex);
+    }
+  }
+
+  async function editResource(type: string, id: string | number, data: {[key : string] : string | null}) {
+    try {
+      await api.saveMeta(type, id, data);
+      switch(type){
+        case "station": await fetchNodes(); break;
+        case "vessel": await fetchVessels(); break;
+        case "sensor": await fetchSensors(); break;
+        default: break;
+      }
+    }
+    catch(ex) {
+      console.log("Failed to edit resource: ", ex);
+    }
+  }
+
+  async function deleteResource(type: string, ids: string[] | number[]) {
+    try {
+      for(const id of ids)
+        await api.deleteResource(type, id);
+      switch(type){
+        case "station": await fetchNodes(); break;
+        case "vessel": await fetchVessels(); break;
+        case "sensor": await fetchSensors(); break;
+        default: break;
+      }
+    }
+    catch(ex) {
+      console.log("Failed to delete resource: ", ex);
+    }
+  }
+
   async function apiCall<T>(fn: () => Promise<T>): Promise<T | undefined> {
     await fetchUser();
     loading.value = true;
@@ -384,6 +442,7 @@ export const useStore = defineStore('auth', () => {
     loading,
     nodes,
     vessels,
+    sensors,
     timeframes,
     selectedNodeData,
     schemas,
@@ -392,9 +451,13 @@ export const useStore = defineStore('auth', () => {
     fetchUser,
     fetchNodes,
     fetchVessels,
+    fetchSensors,
     fetchNodeData,
     fetchTimeframes,
     sendCommand,
-    fetchSensorData
+    fetchSensorData,
+    createResource,
+    editResource,
+    deleteResource
   };
 });

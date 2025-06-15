@@ -5,7 +5,7 @@
     import { computed } from 'vue';
 
     const emit = defineEmits<{
-        (e: 'save', data: {[key: string]: string;}): void;
+        (e: 'save', data: {[key: string]: string | null;}): void;
         (e: 'close'): void;
     }>();
 
@@ -22,7 +22,7 @@
     
     const schema = computed(() => props.schema);
     const model = computed(() => {
-        var m = {} as {[key : string] : string};
+        var m = {} as {[key : string] : string | null};
         if(props.data)
             for(const [key, value] of Object.entries(props.data)) {
                 m[key] = value;
@@ -36,7 +36,11 @@
     })
     
 
-    function save() {        
+    function save() {
+        for(const [key, value] of Object.entries(model.value)) {
+            if(value == "")
+                model.value[key] = null;
+        }
         emit("save", model.value);
     }
 </script>

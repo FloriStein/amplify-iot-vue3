@@ -27,11 +27,12 @@ export function useMqttClient() {
             return;
         }
 
-        subscriptions.push(client.subscribe({ topics: topic }).subscribe({
+        subscriptions.push(client.subscribe({ topics: [topic] }).subscribe({
             next: (data: any) => {
                 const value = data?.value ?? data
-                console.log(`MQTT-Message on ${topic}:`, value);
-                callback(value);
+                const parsed = JSON.parse(JSON.stringify(value))
+                console.log(`MQTT-Message on ${topic}:`, parsed);
+                callback(parsed);
             },
             error: (error: any) => {
                 console.error(`Error while subscibing ${topic}:`, error);

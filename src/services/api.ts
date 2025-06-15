@@ -32,7 +32,7 @@ export default {
     },
 
     async fetchVessels() {
-        return await requestMetaData(`${dataApiUrl}/meta/vessel/all`, ["Vessel_ID"], (o) => {//, "vessel", ["Vessel_ID", "Vessel_location"], (o) => {
+        return await requestMetaData(`${dataApiUrl}/meta/vessel/all`, ["Vessel_ID", "id"], (o) => {//, "vessel", ["Vessel_ID", "Vessel_location"], (o) => {
             return {
                 id: o.Vessel_ID,
         //        location: o.Vessel_location
@@ -75,8 +75,16 @@ export default {
         });
     },
 
+    async fetchAllSensors() {
+        return await requestMetaData(`${dataApiUrl}/meta/sensor/all`, ['Sensor_ID', "id"], (o) => {
+            return {
+                id: o.Sensor_ID
+            }
+        });
+    },
+
     async fetchSensors(stationId : string) {
-        return await requestMetaData(`${dataApiUrl}/meta/vms?station_id=${stationId}`, ['Sensor_ID'], (o) => { //, "sensor", ['Sensor_ID', 'Sensor_location', 'Sensor_type', 'Sensor_unit', 'Measuring_station_ID'], 
+        return await requestMetaData(`${dataApiUrl}/meta/vms?station_id=${stationId}`, ['Sensor_ID', "id"], (o) => { //, "sensor", ['Sensor_ID', 'Sensor_location', 'Sensor_type', 'Sensor_unit', 'Measuring_station_ID'], 
             return {
                 id: o.Sensor_ID
             //    location: o.Sensor_location,
@@ -186,7 +194,7 @@ export default {
         }
     },
 
-    async saveMeta(resource : string, id : string, data : {[key : string] : string}) {
+    async saveMeta(resource : string, id : string | number, data : {[key : string] : string | null}) {
         try {
             const session = await fetchAuthSession();
             const idToken = session.tokens?.idToken?.toString();
@@ -196,7 +204,7 @@ export default {
                 return false;
             }
 
-            await axios.put(`${dataApiUrl}/${resource}/${id}`, data, {
+            await axios.put(`${dataApiUrl}/admin/meta/${resource}/${id}`, data, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                     'Content-Type': 'application/json'
@@ -236,6 +244,24 @@ export default {
             console.error(`Saving of meta data on endpoint ${dataApiUrl}/admin/meta/create failed:`, err)
             return false;
         }
+    },
+
+    async deleteResource(type: string, id: string | number) {
+        const session = await fetchAuthSession();
+        const idToken = session.tokens?.idToken?.toString();
+
+        if(!idToken){
+            console.error("User isn't authenticated");
+            return false;
+        }
+
+        const result = await axios.delete(`${dataApiUrl}/admin/meta/${type}/${id}`, {
+            headers: {
+                Authorization: `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        return result;
     },
     
     async sendCommand(id : string, key : string, payload : any) {

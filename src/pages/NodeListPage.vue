@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { computed } from "vue";
-import { useStore } from "../services/store";
+    import { useStore } from "../services/store";
     import GenericListPage from './GenericListPage.vue';
     import { useRouter } from 'vue-router';
 
@@ -18,16 +18,20 @@ import { useStore } from "../services/store";
         router.push("nodes/" + id);
     }
 
-    function onSaveNode(data : {[key: string]: string}) {
+    function onSaveNode(data : {[key: string]: string | null}) {
         console.log("Saving Node: ", data);
+        store.createResource("measuring_station", data);
     }
 
-    function onEditNode(data : {[key: string]: string}) {
+    function onEditNode(data : {[key: string]: string | null}) {
         console.log("Editing Node: ", data);
+        if(data.id)
+            store.editResource("station", data.id, data);
     }
 
     function onDeleteNodes(ids : string[]) {
         console.log("Deleting Nodes: ", ids);
+        store.deleteResource("station", ids);
     }
 
 </script>

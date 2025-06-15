@@ -16,8 +16,8 @@
 
     const emit = defineEmits<{
         (e: 'open', head: string): void;
-        (e: 'save', data: {[key: string]: string}): void;
-        (e: 'edit', data: {[key: string]: string}): void;
+        (e: 'save', data: {[key: string]: string | null}): void;
+        (e: 'edit', data: {[key: string]: string | null}): void;
         (e: 'delete', selected: string[]): void;
     }>();
 
@@ -60,7 +60,7 @@
         showEditModal.value = true;
     }
 
-    function onEditModalSave(data: {[key: string]: string}) {
+    function onEditModalSave(data: {[key: string]: string | null}) {
         if(modalEditMode.value)
             emit("edit", data);
         else

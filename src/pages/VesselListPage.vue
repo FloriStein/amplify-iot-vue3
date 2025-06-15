@@ -23,16 +23,20 @@ import { useStore } from "../services/store";
         }
     }
 
-    function onSaveVessel(data : {[key: string]: string}) {
+    function onSaveVessel(data : {[key: string]: string | null}) {
         console.log("Saving Vessel: ", data);
+        store.createResource("vessel", data);
     }
 
-    function onEditVessel(data : {[key: string]: string}) {
+    function onEditVessel(data : {[key: string]: string | null}) {
         console.log("Editing Vessel: ", data);
+        if(data.id)
+            store.editResource("vessel", data.id, data);
     }
 
     function onDeleteVessels(ids : string[]) {
         console.log("Deleting Vessels: ", ids);
+        store.deleteResource("vessel", ids);
     }
 
 </script>
