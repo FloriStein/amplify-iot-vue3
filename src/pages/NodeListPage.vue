@@ -1,23 +1,47 @@
 <script setup lang="ts">
-    import Table from "../components/table/Table.vue";
+    import { computed } from "vue";
+import { useStore } from "../services/store";
+    import GenericListPage from './GenericListPage.vue';
+    import { useRouter } from 'vue-router';
 
-    const heads = ["Node-ID", "Location", "Vessel", ""];
-    const rows = [{
-        head: "Node 1",
-        data: ["Test 1", "Test 2"] 
-    },
-    {
-        head: "Node 2",
-        data: ["Test 3", "Test 4"]
-    }];
+    const router = useRouter();
+    const store = useStore();
+    store.fetchNodes();
+
+    const isAdmin = computed(() => store.user?.isAdmin ?? false);
+    const isLoading = computed(() => store.loading);
+    const nodes = computed(() => store.nodes ?? []);
+    const schemas = computed(() => store.schemas.node ?? []);
+
+    function onOpenNode(id : string) {
+        console.log("Opening Node: ", id);
+        router.push("nodes/" + id);
+    }
+
+    function onSaveNode(data : {[key: string]: string}) {
+        console.log("Saving Node: ", data);
+    }
+
+    function onEditNode(data : {[key: string]: string}) {
+        console.log("Editing Node: ", data);
+    }
+
+    function onDeleteNodes(ids : string[]) {
+        console.log("Deleting Nodes: ", ids);
+    }
+
 </script>
 
 <template>
-    <div class="flex flex-wrap flex-col items-start fixed top-0 left-0 width-1 p-24 pt-32 gap-8">
-        <h1 class="text-3xl text-left">Your Nodes</h1>
-        <p class="text-left">
-            Here is a list of all your Nodes. <br> Select a Node to see its data.
-        </p>
-        <Table :heads="heads" :rows="rows" :editable="true" />
-    </div>
+    <GenericListPage 
+        resource-name="Node" 
+        :is-admin="isAdmin" 
+        :loading="isLoading" 
+        :data="nodes" 
+        :schemas="schemas"
+        @open="onOpenNode"
+        @save="onSaveNode"
+        @edit="onEditNode"
+        @delete="onDeleteNodes"
+    />
 </template>

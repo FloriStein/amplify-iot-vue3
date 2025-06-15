@@ -16,7 +16,7 @@
 </script>
 
 <template>
-  <h1 class="mb-8">Login</h1>
+  <h1 class="text-3xl text-left mb-8">Login</h1>
   <Authenticator hide-sign-up>
     <template v-slot="{ user: slotUser }">
       <div v-if="slotUser">

@@ -24,6 +24,11 @@ module.exports = {
             hover: 'var(--accent-hover)',
             foreground: 'var(--accent-foreground)'
           },
+          danger: {
+            DEFAULT: 'var(--danger)',
+            hover: 'var(--danger-hover)',
+            foreground: 'var(--danger-foreground)'
+          },
           muted: {
             DEFAULT: 'var(--muted)',
             hover: 'var(--muted-hover)',
@@ -57,6 +62,9 @@ module.exports = {
             DEFAULT: 'var(--input)',
             hover: 'var(--input-hover)',
             foreground: 'var(--input-foreground)'
+          },
+          skeleton: {
+            DEFAULT: 'var(--skeleton)'
           }
         },
         fontFamily: {
@@ -70,7 +78,9 @@ module.exports = {
       extend: {},
     },
     plugins: [
-      require('flowbite/plugin')
+      require('flowbite/plugin'),
+      require('@tailwindcss/aspect-ratio'),
+      require("@tailwindcss/forms")
     ],
     content: [
       "./node_modules/flowbite/**/*.js"

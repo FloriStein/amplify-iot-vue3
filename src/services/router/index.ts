@@ -5,6 +5,8 @@ import AboutPage from "../../pages/AboutPage.vue";
 import LegacyApp from "../../pages/LegacyApp.vue";
 import Authenticator from "../../components/auth/Authenticator.vue"
 import { getCurrentUser } from 'aws-amplify/auth';
+import VesselListPage from "../../pages/VesselListPage.vue";
+import NodeDataPage from "../../pages/NodeDataPage.vue";
   
 async function isUserLoggedIn() {
   try {
@@ -19,9 +21,11 @@ const basePath = "/";
 const routes = [
   { path: basePath, name: "Home", component: LandingPage, meta: { requiresAuth: false, show: true} },
   { path: basePath + "nodes", name: "Nodes", component: NodeListPage, meta: { requiresAuth: true, show: true} },
+  { path: basePath + "vessels", name: "Vessels", component: VesselListPage, meta: { requiresAuth: true, show: true} },
   { path: basePath + "legacy", name: "Legacy", component: LegacyApp, meta: { requiresAuth: true, show: true} },
   { path: basePath + "about", name: "About", component: AboutPage, meta: { requiresAuth: false, show: true} },
   { path: basePath + "login", name: "Login", component: Authenticator, meta: { requiresAuth: false, show: false} },
+  { path: basePath + "nodes/:id", name: "Node Data", component: NodeDataPage, meta: { requiresAuth: true, show: false} },
 ];
 
 const router = createRouter({

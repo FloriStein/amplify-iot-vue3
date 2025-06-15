@@ -21,6 +21,10 @@
     --accent-hover: #FF9A7B;
     --accent-foreground: #FFFFFF;
 
+    --danger: #b61111;
+    --danger-hover: #cf3a3a;
+    --danger-foreground: #FFFFFF;
+
     --muted: #E2EEF0;
     --muted-hover: #D0E5E8;
     --muted-foreground: #456268;
@@ -45,6 +49,8 @@
     --input: #F0F9FB;
     --input-foreground: #1B2A41;
 
+    --skeleton: #3A5866;
+
     --placeholder: #7DA6B2;
     --border: #B7DDE5;
   }
@@ -66,6 +72,10 @@
     --accent: #FF8360;
     --accent-hover: #FF9A7B;
     --accent-foreground: #FFFFFF;
+
+    --danger: #b61111;
+    --danger-hover: #cf3a3a;
+    --danger-foreground: #FFFFFF;
 
     --muted: #29404B;
     --muted-hover: #3A5866;
@@ -93,6 +103,8 @@
     --input-hover: #344855;
     --input-foreground: #DCEAF0;
 
+    --skeleton: #3A5866;
+
     --placeholder: #A3C3CC;
     --border: #8a9b9e;
     --radius: 0.5rem;
@@ -119,7 +131,7 @@
   }
 
   .card {
-    @apply bg-card text-card-foreground p-8 border border-border rounded rounded-2xl;
+    @apply bg-card text-card-foreground p-8 border border-border rounded-2xl;
   }
 
   .card-title {
@@ -127,7 +139,7 @@
   }
 
   .value-badge {
-    @apply bg-primary inline-block text-primary-foreground w-16 h-16 text-xl p-4 border border-border rounded rounded-full;
+    @apply bg-primary inline-block text-primary-foreground w-16 h-16 text-xl p-4 border border-border rounded-full;
   }
 }
 

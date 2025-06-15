@@ -13,7 +13,7 @@ const idToken = ref('')         // JWT-Token für die Authentifizierung
 let subscription                 // Referenz zum MQTT-Abonnement
 
 // MQTT-Thema, auf das geantwortet wird (z. B. vom Gerät)
-const topicResponse = 'sqscommand'
+const topicResponse = 'hydronode-1/command/no-aws'
 
 // URL für die REST-API, an die der Befehl gesendet wird
 const apiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev/admin/command'
@@ -130,22 +130,22 @@ onBeforeUnmount(() => {
         <input
             v-model="command"
             type="text"
-            class="bg-input text-input-foreground border border-border rounded rounded-lg w-full"
+            class="bg-input text-input-foreground border border-border rounded-lg w-full"
             placeholder="Command-Text"
         />
       </div>
       <div class="flex space-x-4">
-        <button type="submit" class="bg-primary text-primary-foreground rounded rounded-lg px-4 py-2 hover:bg-primary-hover" :disabled="isSending || !command">
+        <button type="submit" class="bg-primary text-primary-foreground rounded-lg px-4 py-2 hover:bg-primary-hover" :disabled="isSending || !command">
           {{ isSending ? 'Senden...' : 'Senden' }}
         </button>
-        <button type="button" class="bg-red-500 text-primary-foreground rounded rounded-lg px-4 py-2 hover:bg-red-400" @click="resetCommand">
+        <button type="button" class="bg-red-500 text-primary-foreground rounded-lg px-4 py-2 hover:bg-red-400" @click="resetCommand">
           Zurücksetzen
         </button>
       </div>
       <div>
         <label class="block text-lg font-medium text-card-foreground mb-1">Antwort der Node</label>
         <textarea
-            class="bg-input text-input-foreground border border-border rounded rounded-lg w-full"
+            class="bg-input text-input-foreground border border-border rounded-lg w-full"
             rows="3"
             readonly
             :value="response"
