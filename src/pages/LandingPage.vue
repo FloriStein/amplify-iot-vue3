@@ -5,7 +5,7 @@
 </script>
 
 <template>
-    <div class="flex flex-wrap flex-col items-start fixed top-0 left-0 width-1 p-24 pt-32 gap-8">
+    <div class="flex flex-wrap flex-col items-start fixed top-0 left-0 width-1 p-24 pt-32 gap-8 overflow-auto">
         <h1 class="text-3xl text-left font-bold">Welcome to HydroNode!</h1>
         <p class="text-left">
             HydroNode is a cloud based sensor management application, centered around measuring stations for water storages.<br>

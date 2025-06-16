@@ -59,7 +59,7 @@ export default {
     async fetchNodesByVessel(id : number) {
         return await requestMetaData(`${dataApiUrl}/meta/vms?vessel_id=${id}`, ["id", "Measuring_station_ID", "internal_id"], (o) => {//, "station", ["Measuring_station_ID", "Vessel_ID", "Station_location"], (o) => {
             return {
-                id: o.id,
+                id: o.Measuring_station_ID,
                 //Stationlocation: o.Station_location,
                 //"vessel id": id
             }
@@ -69,7 +69,7 @@ export default {
     async fetchAllNodes() {
         return await requestMetaData(`${dataApiUrl}/meta/station/all`, ["id", "Measuring_station_ID", "internal_id"], (o) => { //, "station", ["Measuring_station_ID", "Station_location"], 
             return {
-                id: o.id,
+                id: o.Measuring_station_ID,
         //        location: o.Station_location
             }
         });
@@ -227,12 +227,7 @@ export default {
                 return false;
             }
 
-            const payload = {
-                resource_type: resourceType,
-                data: body
-            }
-
-            const response = await axios.post(`${dataApiUrl}/admin/meta/create`, payload, {
+            const response = await axios.post(`${dataApiUrl}/admin/meta/${resourceType}`, body, {
                 headers: {
                     Authorization: `Bearer ${idToken}`,
                     'Content-Type': 'application/json'
@@ -241,7 +236,7 @@ export default {
             console.log("Saved data: ", response.data);
             return true;
         } catch (err) {
-            console.error(`Saving of meta data on endpoint ${dataApiUrl}/admin/meta/create failed:`, err)
+            console.error(`Saving of meta data on endpoint ${dataApiUrl}/admin/meta/${resourceType} failed:`, err)
             return false;
         }
     },

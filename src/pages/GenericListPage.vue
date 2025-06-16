@@ -30,9 +30,9 @@
     const showEditModal = ref(false);
     const modalEditMode = ref(true);
     const editData = ref<MetaData | null>(null);
-    const selectedRows = ref<string[]>([]);
+    const selectedRows = ref<string[]>([]); //TODO fix select all / multiple
 
-    const keys = computed(() => data.value ? Object.keys(data.value[0]) : []);
+    const keys = computed(() => data.value ? Object.keys(data.value[0] ?? {}) : []);
 
     const rows = computed(() => data.value
     ? data.value.map((station : MetaData) => {
