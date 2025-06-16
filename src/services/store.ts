@@ -13,6 +13,7 @@ export const useStore = defineStore('auth', () => {
   const sensors = ref<MetaData[] | null>(null);
   const timeframes = ref<string[]>([]);
   const commandHistory = ref<{[key: string] : CommandLog[]}>({});
+  const users = ref<{email: string, status: string}[]>([]);
 
   const schemas = ref<{
     node: InputSchema[],
@@ -358,6 +359,7 @@ export const useStore = defineStore('auth', () => {
 
   async function createResource(type: string, data : any) {
     try {
+      loading.value = true;
       await api.createResource(type, data);
       switch(type){
         case "measuring_station": await fetchNodes(); break;
@@ -369,10 +371,14 @@ export const useStore = defineStore('auth', () => {
     catch(ex) {
       console.log("Failed to create resource: ", ex);
     }
+    finally {
+      loading.value = false;
+    }
   }
 
   async function editResource(type: string, id: string | number, data: {[key : string] : string | null}) {
     try {
+      loading.value = true;
       await api.saveMeta(type, id, data);
       switch(type){
         case "station": await fetchNodes(); break;
@@ -384,10 +390,14 @@ export const useStore = defineStore('auth', () => {
     catch(ex) {
       console.log("Failed to edit resource: ", ex);
     }
+    finally {
+      loading.value = false;
+    }
   }
 
   async function deleteResource(type: string, ids: string[] | number[]) {
     try {
+      loading.value = true;
       for(const id of ids)
         await api.deleteResource(type, id);
       switch(type){
@@ -399,6 +409,57 @@ export const useStore = defineStore('auth', () => {
     }
     catch(ex) {
       console.log("Failed to delete resource: ", ex);
+    }
+    finally {
+      loading.value = false;
+    }
+  }
+
+  async function fetchUsers() {
+    try {
+      loading.value = true;
+      users.value = await api.fetchUsers();
+    }
+    catch(ex) {
+      console.log("Failed to fetch users: ", ex);
+    }
+    finally {
+      loading.value = false;
+    }
+  }
+
+  async function addUser(email : string) {
+    try {
+      loading.value = true;
+      await api.addUser(email);
+      await fetchUsers();
+    }
+    catch(ex) {
+      console.log("Failed to add user: ", ex);
+    }
+    finally {
+      loading.value = false;
+    }
+  }
+
+  async function removeUsers(emails : string[]) {
+    try {
+      loading.value = true;
+      for(const email of emails){
+        try {
+          await api.removeUser(email);
+        }
+        catch(ex) {
+          console.log("Failed to remove user: ", ex);
+        }
+      }
+      await api.fetchUsers();
+    }
+    catch(ex) {
+      console.log("Failed finalizing user removal: ", ex);
+    }
+    finally {
+      loading.value = false;
     }
   }
 
@@ -447,6 +508,7 @@ export const useStore = defineStore('auth', () => {
     selectedNodeData,
     schemas,
     commandHistory,
+    users,
 
     fetchUser,
     fetchNodes,
@@ -458,6 +520,9 @@ export const useStore = defineStore('auth', () => {
     fetchSensorData,
     createResource,
     editResource,
-    deleteResource
+    deleteResource,
+    fetchUsers,
+    addUser,
+    removeUsers
   };
 });

@@ -36,6 +36,7 @@
             </div>
             <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
                 <ul class="flex flex-col p-4 md:p-0 list-none mt-4 font-medium border border-border rounded-lg bg-navbar md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
+                    <NavbarButton v-if="store.user?.isAdmin" title="Users" @click="nav('/users')" />
                     <NavbarButton v-for="route in routes.filter(r => r.meta && r.meta.show)" :title="route.name as string" @click="nav(route.path)" />
                 </ul>
             </div>

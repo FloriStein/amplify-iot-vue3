@@ -1,39 +1,31 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
-    withDefaults(
+    const props = withDefaults(
         defineProps<{ 
+        selected? : boolean,
         selectable? : boolean,
         editable? : boolean,
         head : string, 
         data : string[]
         }>(),
         {
+            selected: false,
             selectable: false,
             editable: false
         }
     );
 
-    const emit = defineEmits(
-        ["edit", "select", "deselect"]
-    );
+    const emit = defineEmits<{
+        (e: 'edit'): void;
+        (e: 'toggle-select', head: string): void;
+    }>();
 
-    defineExpose({
-        setSelect
-    });
-
-    const selected = ref(false);
-
-    function setSelect(state : boolean) {
-        selected.value = state;
-        if(selected.value)
-            emit("select");
-        else   
-            emit("deselect");
-    }
+    const selected = computed(() => props.selected);
 
     function toggleSelect() {
-        setSelect(!selected.value);
+        console.log("Toggle select on row ", props.head)
+        emit("toggle-select", props.head);
     }
     
 </script>

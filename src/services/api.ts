@@ -283,6 +283,58 @@ export default {
             }
         })
         return result;
+    },
+
+    async fetchUsers() {
+        const session = await fetchAuthSession();
+        const idToken = session.tokens?.idToken?.toString();
+
+        if(!idToken){
+            console.error("User isn't authenticated");
+            return false;
+        }
+
+        const res = await axios.get(`${dataApiUrl}/admin/users`, {
+            headers: {
+                Authorization: `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        return res.data;
+    },
+
+    async addUser(email : string) {
+        const session = await fetchAuthSession();
+        const idToken = session.tokens?.idToken?.toString();
+
+        if(!idToken){
+            console.error("User isn't authenticated");
+            return false;
+        }
+
+        return await axios.post(`${dataApiUrl}/admin/users`, {email: email}, {
+            headers: {
+                Authorization: `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
+    },
+
+    async removeUser(email : string) {
+        const session = await fetchAuthSession();
+        const idToken = session.tokens?.idToken?.toString();
+
+        if(!idToken){
+            console.error("User isn't authenticated");
+            return false;
+        }
+
+        await axios.delete(`${dataApiUrl}/admin/users/${email}`, {
+            headers: {
+                Authorization: `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
     }
 }
 

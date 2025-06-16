@@ -6,13 +6,26 @@
     import ConfirmationModal from "../components/modals/ConfirmationModal.vue";
     import ResourceModal from "../components/modals/ResourceModal.vue";
 
-    const props = defineProps<{
-        schemas: InputSchema[],
-        resourceName: string,
-        data: MetaData[],
-        loading: boolean,
-        isAdmin: boolean,
-    }>();
+    const props = withDefaults(
+        defineProps<{
+            schemas: InputSchema[],
+            resourceName: string,
+            data: MetaData[],
+            loading: boolean,
+            isAdmin: boolean,
+            searchable?: boolean,
+            selectable?: boolean,
+            editable?: boolean,
+            buttons?: boolean,
+            clickable?: boolean
+        }>(),
+        {
+            searchable: true,
+            selectable: true,
+            editable: true,
+            buttons: true,
+            clickable: true
+        });
 
     const emit = defineEmits<{
         (e: 'open', head: string): void;
@@ -30,7 +43,8 @@
     const showEditModal = ref(false);
     const modalEditMode = ref(true);
     const editData = ref<MetaData | null>(null);
-    const selectedRows = ref<string[]>([]); //TODO fix select all / multiple
+    const selected = ref(new Set<string>());
+    //const selectedRows = ref<string[]>([]); //TODO fix select all / multiple
 
     const keys = computed(() => data.value ? Object.keys(data.value[0] ?? {}) : []);
 
@@ -69,7 +83,7 @@
     }
 
     function onDeleteClick() {
-        if(selectedRows.value.length <= 0)
+        if(selected.value.size <= 0)
             return;
         showConfirmModal.value = true;
     }
@@ -84,25 +98,11 @@
         showEditModal.value = true;
     }
 
-    function onRowSelected(head : string) {
-        if(selectedRows.value.find((elem) => elem == head))
-            return;
-
-        selectedRows.value.push(head);
-    }
-
-    function onRowDeselected(head : string) {
-        for(var i = 0; i < selectedRows.value.length; i++) {
-            if(selectedRows.value[i] == head)
-                selectedRows.value.splice(i, 1);
-
-        }
-    }
-
     function onAcceptDelete() {
-        emit("delete", selectedRows.value);
+        emit("delete", Array.from(selected.value));
         showConfirmModal.value = false;
-        selectedRows.value.length = 0;
+        //selectedRows.value.length = 0;
+        selected.value.clear()
     }
 
     function onDeclineDelete() {
@@ -122,10 +122,11 @@
     <div class="flex flex-wrap flex-col items-start fixed top-0 left-0 width-1 p-24 pt-32 gap-8">
         <h1 class="text-3xl text-left font-bold">Your {{ resourceName }}s</h1>
         <p class="text-left">
-            Here is a list of all your {{ resourceName }}s. <br> Select a {{ resourceName }} to see its data.
+            Here is a list of all your {{ resourceName }}s. <br>
+            {{ clickable ? 'Select a ' + resourceName + ' to see its data.' : '' }}
         </p>
         <Spinner v-if="rows.length <= 0 && loading" class="mt-16" />
-        <Table v-if="rows.length > 0 || !loading" :heads="keys" :rows="rows" :selectable="isAdmin" :editable="isAdmin" :buttons="isAdmin" :searchable="true" 
-        @row-clicked="onRowClick" @row-edit="onRowEdit" @row-selected="onRowSelected" @row-deselected="onRowDeselected" @add-clicked="onAddClick" @delete-clicked="onDeleteClick" />
+        <Table v-if="rows.length > 0 || !loading" :heads="keys" v-model="selected" :rows="rows" :selectable="isAdmin && selectable" :editable="isAdmin  && editable" :buttons="isAdmin && buttons" :searchable="searchable" 
+        @row-clicked="onRowClick" @row-edit="onRowEdit" @add-clicked="onAddClick" @delete-clicked="onDeleteClick" />
     </div>
 </template>

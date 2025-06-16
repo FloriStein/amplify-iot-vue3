@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@alloc/quick-lru": "^5.2.0",
     "@aws-amplify/cli-extensibility-helper": "^2.4.12",
     "@aws-amplify/pubsub": "^6.1.56",
     "@aws-amplify/ui-vue": "^4.3.1",

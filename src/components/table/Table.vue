@@ -4,8 +4,10 @@
     import Button from "../Button.vue";
 
     const searchTerm = ref("");
-    const tableRowRefs = ref<InstanceType<typeof TableRow>[]>([]);
+    //const tableRowRefs = ref<InstanceType<typeof TableRow>[]>([]);
     const selectAll = ref(false);
+
+    const selected = defineModel<Set<string>>({ required: true});
 
     const props = withDefaults(
         defineProps<{ 
@@ -29,8 +31,6 @@
 
     const emit = defineEmits<{
         (e: 'row-clicked', head: string): void;
-        (e: 'row-selected', head: string): void;
-        (e: 'row-deselected', head: string): void;
         (e: 'row-edit', head: string): void;
         (e: 'add-clicked') : void;
         (e: 'delete-clicked') : void;
@@ -50,9 +50,30 @@
 
     function toggleSelectAll() {
         selectAll.value = !selectAll.value;
-        tableRowRefs.value.forEach(row => {
-            row.setSelect(selectAll.value);
-        });
+        selected.value.clear();
+
+        if(selectAll.value){
+            filteredData.value.forEach(row => {
+                selected.value.add(row.head);
+            });
+        }
+        console.log(selected.value);
+    }
+
+    function toggleSelect(head : string) {
+        //if(selectedRows.value.find((elem) => elem == head))
+        //    return;
+
+        //selectedRows.value.push(head);
+        
+        if (selected.value.has(head)){
+            console.log(`Removing ${head} from set`);
+            selected.value.delete(head);
+        }
+        else{
+            console.log(`Adding ${head} to set`);
+            selected.value.add(head);
+        }
     }
 </script>
 
@@ -72,7 +93,7 @@
         <table class="w-full text-sm text-left rtl:text-right text-table-foreground">
             <thead class="text-xs text-table-foreground uppercase bg-table-head border-b border-border">
                 <tr>
-                    <th v-if="selectable" scope="col" class="p-4">
+                    <th v-if="selectable && rows.length > 0" scope="col" class="p-4">
                         <div class="flex items-center">
                             <input id="checkbox-all-search" type="checkbox" @click="toggleSelectAll" class="w-5 h-5 text-3xl text-primary bg-table-head border-border rounded-sm focus:ring-primary focus:ring-2 cursor-pointer hover:border-primary">
                             <label for="checkbox-all-search" class="sr-only">checkbox</label>
@@ -89,12 +110,10 @@
                 <TableRow 
                     v-if="rows.length > 0" 
                     v-for="row in filteredData"
-                    ref="tableRowRefs"
-                    v-bind="row"
+                    :selected="selected.has(row.head)"
                     @click="() => emit('row-clicked', row.head)"
                     @edit="() => emit('row-edit', row.head)"
-                    @select="() => emit('row-selected', row.head)"
-                    @deselect="() => emit('row-deselected', row.head)"
+                    @toggle-select="toggleSelect"
                     :editable="editable" 
                     :selectable="selectable" 
                     :head="row.head" 
