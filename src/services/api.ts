@@ -57,9 +57,9 @@ export default {
     },
 
     async fetchNodesByVessel(id : number) {
-        return await requestMetaData(`${dataApiUrl}/meta/vms?vessel_id=${id}`, ["Measuring_station_ID", "Internal_ID"], (o) => {//, "station", ["Measuring_station_ID", "Vessel_ID", "Station_location"], (o) => {
+        return await requestMetaData(`${dataApiUrl}/meta/vms?vessel_id=${id}`, ["id", "Measuring_station_ID", "internal_id"], (o) => {//, "station", ["Measuring_station_ID", "Vessel_ID", "Station_location"], (o) => {
             return {
-                id: o.Measuring_station_ID,
+                id: o.id,
                 //Stationlocation: o.Station_location,
                 //"vessel id": id
             }
@@ -67,9 +67,9 @@ export default {
     },
 
     async fetchAllNodes() {
-        return await requestMetaData(`${dataApiUrl}/meta/station/all`, ["Measuring_station_ID", "Internal_ID"], (o) => { //, "station", ["Measuring_station_ID", "Station_location"], 
+        return await requestMetaData(`${dataApiUrl}/meta/station/all`, ["id", "Measuring_station_ID", "internal_id"], (o) => { //, "station", ["Measuring_station_ID", "Station_location"], 
             return {
-                id: o.Measuring_station_ID,
+                id: o.id,
         //        location: o.Station_location
             }
         });
