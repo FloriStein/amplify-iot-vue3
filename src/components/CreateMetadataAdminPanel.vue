@@ -52,6 +52,7 @@ const fetchSchema = async () => {
       return
     }
 
+    // ⚠️ Hier bleibt der alte Schema-Endpunkt (Query-Parameter)
     const url = `${apiUrl}/meta/schema?resource_type=${resourceType.value}`
     console.log(`🌐 Sende GET-Anfrage an: ${url}`)
 
@@ -91,20 +92,16 @@ const saveResource = async () => {
       return
     }
 
-    const url = `${apiUrl}/admin/meta/create`
+    // 🔧 NEUER RESTFUL Pfad fürs Speichern:
+    const url = `${apiUrl}/admin/meta/${resourceType.value}`
     console.log(`🌐 Sende POST an: ${url}`)
 
-    const payload = {
-      resource_type: resourceType.value,
-      data: formData.value
-    }
-
-    const response = await axios.post(url, payload, {
+    const response = await axios.post(url, formData.value, {
       headers: { Authorization: `Bearer ${token}` }
     })
 
     console.log('✅ Formulardaten erfolgreich gespeichert:', response.data)
-    success.value = `✅ Daten erfolgreich gespeichert (ID: ${response.data.insertId || 'unbekannt'})`
+    success.value = `✅ Daten erfolgreich gespeichert`
   } catch (err) {
     console.error('❌ Fehler beim Speichern der Daten:', err)
 

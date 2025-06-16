@@ -224,6 +224,38 @@
           "read"
         ]
       }
+    },
+    "/admin/meta/{resource-type}": {
+      "name": "/admin/meta/{resource-type}",
+      "lambdaFunction": "hydroNodeCreateNewRessourceFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create"
+        ]
+      }
+    },
+    "/admin/meta/{resource-type}/{resource-id}": {
+      "name": "/admin/meta/{resource-type}/{resource-id}",
+      "lambdaFunction": "hydroNodeCreateNewRessourceFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "update",
+          "delete"
+        ]
+      }
+    },
+    "/items/admin/meta/{resource-type}/{resource-id}": {
+      "name": "/items/admin/meta/{resource-type}/{resource-id}",
+      "lambdaFunction": "hydroNodeCreateNewRessourceFunction",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "update",
+          "delete"
+        ]
+      }
     }
   }
 }

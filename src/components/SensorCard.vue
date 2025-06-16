@@ -335,7 +335,7 @@ onMounted(async () => {
 
     await fetchVessels()
 
-    axios.get(`${dataApiUrl}/data/test`, {
+    /*axios.get(`${dataApiUrl}/data/test`, {
       headers: {
         Authorization: `Bearer ${idToken.value}`,
         'Content-Type': 'application/json'
@@ -344,7 +344,7 @@ onMounted(async () => {
       console.log('Erfolg:', response.data);
     }).catch(error => {
       console.error('Fehler:', error.response?.data ?? error);
-    });
+    });*/
 
 
 

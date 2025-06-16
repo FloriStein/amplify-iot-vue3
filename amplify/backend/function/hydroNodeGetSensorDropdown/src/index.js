@@ -12,7 +12,10 @@ exports.handler = async (event) => {
         'Access-Control-Allow-Methods': 'GET,OPTIONS'
     };
 
+    console.log("📩 Eingehendes Event:", JSON.stringify(event));
+
     if (event.httpMethod === 'OPTIONS') {
+        console.log("🔧 CORS Preflight erkannt");
         return {
             statusCode: 200,
             headers: corsHeaders,
@@ -22,9 +25,11 @@ exports.handler = async (event) => {
 
     try {
         if (!pool) {
+            console.log("🔑 Secrets werden geladen...");
             const client = new SecretsManagerClient({ region: "eu-central-1" });
             const secretData = await client.send(new GetSecretValueCommand({ SecretId: SECRET_ARN }));
             const creds = JSON.parse(secretData.SecretString);
+            console.log("🔐 Secrets erfolgreich geladen");
 
             pool = mysql.createPool({
                 host: "metadatabase.cdags0e2a8yc.eu-central-1.rds.amazonaws.com",
@@ -35,14 +40,17 @@ exports.handler = async (event) => {
                 connectionLimit: 10,
                 queueLimit: 0
             });
+            console.log("📡 Datenbankpool erstellt");
         }
 
         const queryParams = event.queryStringParameters || {};
+        console.log("🔎 Query Parameter empfangen:", JSON.stringify(queryParams));
+
         let query = '';
         let values = [];
 
         if (queryParams.vessel_id) {
-            // 📌 Alle Stationen zu einem Vessel
+            console.log("🚢 Vessel ID erkannt:", queryParams.vessel_id);
             query = `
                 SELECT * FROM Measuring_station
                 WHERE Vessel_ID = ?
@@ -50,7 +58,7 @@ exports.handler = async (event) => {
             values = [queryParams.vessel_id];
 
         } else if (queryParams.station_id) {
-            // 📌 Alle Sensoren zu einer Station
+            console.log("📟 Station ID erkannt:", queryParams.station_id);
             query = `
                 SELECT * FROM Sensor
                 WHERE Measuring_station_ID = ?
@@ -58,13 +66,15 @@ exports.handler = async (event) => {
             values = [queryParams.station_id];
 
         } else {
-            // 📌 Alle Vessels
+            console.log("📥 Keine Parameter -> lade alle Vessels (Dropdown)");
             query = `
                 SELECT * FROM Vessel
             `;
         }
 
+        console.log("📄 SQL Query wird ausgeführt:", query, "mit Werten:", values);
         const [rows] = await pool.query(query, values);
+        console.log(`✅ Query erfolgreich, Anzahl Datensätze: ${rows.length}`);
 
         return {
             statusCode: 200,
@@ -73,7 +83,7 @@ exports.handler = async (event) => {
         };
 
     } catch (error) {
-        console.error("❌ Fehler:", error);
+        console.error("❌ Fehler beim Verarbeiten der Anfrage:", error);
         return {
             statusCode: 500,
             headers: corsHeaders,

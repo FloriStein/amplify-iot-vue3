@@ -55,7 +55,7 @@
         },
         "hydroNodeGetSensorDropdown": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/hydroNodeGetSensorDropdown-4d64332f676576382f55-build.zip"
+          "s3Key": "amplify-builds/hydroNodeGetSensorDropdown-614b32526c4d5a506531-build.zip"
         },
         "hydroNodeMetaHandler": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
@@ -83,7 +83,7 @@
         },
         "hydroNodegetAggregatedDataFunction": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/hydroNodegetAggregatedDataFunction-4478725a435732676177-build.zip"
+          "s3Key": "amplify-builds/hydroNodegetAggregatedDataFunction-49543871624a4f7a5575-build.zip"
         },
         "hydroNodeGetSchemaFunction": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
@@ -99,7 +99,7 @@
         },
         "hydroNodeCreateNewRessourceFunction": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",
-          "s3Key": "amplify-builds/hydroNodeCreateNewRessourceFunction-58386a666568586e6278-build.zip"
+          "s3Key": "amplify-builds/hydroNodeCreateNewRessourceFunction-457949776e4468654868-build.zip"
         },
         "cachLoadTestFunction": {
           "deploymentBucketName": "amplify-amplifyiotvue3-dev-41ff7-deployment",

@@ -12,7 +12,7 @@ const idToken = ref('')         // JWT-Token für die Authentifizierung
 
 let subscription                 // Referenz zum MQTT-Abonnement
 
-// MQTT-Thema, auf das geantwortet wird (z. B. vom Gerät)
+// MQTT-Thema, auf das geantwortet wird
 const topicResponse = 'sqscommand'
 
 // URL für die REST-API, an die der Befehl gesendet wird
