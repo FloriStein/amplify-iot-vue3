@@ -1,311 +1,38 @@
 <script setup>
-// Import benötigter Funktionen und Bibliotheken
-import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, computed, nextTick } from 'vue'
 import axios from 'axios'
 import { Chart } from 'chart.js/auto'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { PubSub } from '@aws-amplify/pubsub'
 
-// Verbindungsstatus und Messwerte
+// State-Definition
 const connected = ref(false)
 const lastSeen = ref(null)
 const currentValue = ref('...')
-
-// Chart-Referenz
 const chartRef = ref(null)
 
-// Datenquellen
 const vessels = ref([])
 const stations = ref([])
 const sensors = ref([])
 const timeframes = ref([])
 
-// Ausgewählte IDs
 const selectedVessel = ref(null)
 const selectedStation = ref(null)
 const selectedSensor = ref(null)
 const selectedTimeframe = ref(null)
 
-// Metadaten der aktuell ausgewählten Einträge
-const selectedVesselMeta = computed(() =>
-    vessels.value.find(v => v.id === selectedVessel.value) ?? null
-)
-
-const selectedStationMeta = computed(() =>
-    stations.value.find(s => s.id === selectedStation.value) ?? null
-)
-
-const selectedSensorMeta = computed(() =>
-    sensors.value.find(s => s.id === selectedSensor.value) ?? null
-)
-
-// Watcher für Auswahländerungen: Vessel -> Stationen laden
-watch(selectedVessel, async (newVal) => {
-  if (newVal) await fetchStations(newVal)
-})
-
-// Watcher für Auswahländerungen: Station -> Sensoren laden
-watch(selectedStation, async (newVal) => {
-  if (newVal) await fetchSensors(newVal)
-})
-
-// Watcher für Sensor UND Timeframe: Chartdaten laden
-watch([selectedSensor, selectedTimeframe], async ([newSensor, newTimeframe]) => {
-  if (newSensor && newTimeframe && selectedStation.value) {
-    const sensorMeta = sensors.value.find(s => s.id === newSensor)
-    if (sensorMeta) {
-      await fetchDeviceShadow(sensorMeta, newTimeframe)
-    }
-  }
-})
-
-// Chart-Instanz & Aktualisierungsintervall
 let chartInstance = null
 let chartIntervalId = null
 
-// Authentifizierungs-Token
 const idToken = ref(null)
 const dataApiUrl = 'https://fxxok2wf3d.execute-api.eu-central-1.amazonaws.com/dev'
 
-// Hole Liste der verfügbaren Schiffe und Timeframes
-const fetchVessels = async () => {
-  try {
-    const session = await fetchAuthSession()
-    idToken.value = session.tokens?.idToken?.toString()
+// Computed Metadaten
+const selectedVesselMeta = computed(() => vessels.value.find(v => v.id === selectedVessel.value) ?? null)
+const selectedStationMeta = computed(() => stations.value.find(s => s.id === selectedStation.value) ?? null)
+const selectedSensorMeta = computed(() => sensors.value.find(s => s.id === selectedSensor.value) ?? null)
 
-    const res = await axios.get(`${dataApiUrl}/meta/vms`, {
-      headers: {
-        Authorization: `Bearer ${idToken.value}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    const resTimeframes = await axios.get(`${dataApiUrl}/meta/app/timeframe`, {
-      headers: {
-        Authorization: `Bearer ${idToken.value}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    timeframes.value = resTimeframes.data.timeframes
-    selectedTimeframe.value = timeframes.value[0] || null
-
-    // Normalisiere Vessel-Daten
-    vessels.value = res.data.data.map(v => {
-      const vesselObj = {
-        id: v.Vessel_ID,
-        name: v.Vessel_location
-      }
-
-      const excludedKeys = ['Vessel_ID', 'Vessel_location']
-      for (const [key, value] of Object.entries(v)) {
-        if (!excludedKeys.includes(key)) {
-          const normalizedKey = key.toLowerCase()
-          vesselObj[normalizedKey] = value ?? 'unbekannt'
-        }
-      }
-
-      return vesselObj
-    })
-
-    // ⛴ Standardauswahl
-    if (vessels.value.length > 0) {
-      selectedVessel.value = vessels.value[0].id
-      await fetchStations(selectedVessel.value)
-    }
-
-  } catch (err) {
-    console.error('❌ Fehler beim Laden der Vessels:', err)
-  }
-}
-
-// Lade Messstationen für ausgewähltes Vessel
-const fetchStations = async (vesselId) => {
-  try {
-    const res = await axios.get(`${dataApiUrl}/meta/vms?vessel_id=${vesselId}`, {
-      headers: {
-        Authorization: `Bearer ${idToken.value}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    stations.value = res.data.data.map(station => {
-      const stationObj = {
-        id: station.Measuring_station_ID,
-        name: station.Measuring_station_ID,
-        vessel_id: vesselId
-      }
-
-      const excludedKeys = ['Measuring_station_ID', 'Vessel_ID']
-      for (const [key, value] of Object.entries(station)) {
-        if (!excludedKeys.includes(key)) {
-          const normalizedKey = key.toLowerCase()
-          stationObj[normalizedKey] = value ?? 'unbekannt'
-        }
-      }
-
-      return stationObj
-    })
-
-    if (stations.value.length > 0) {
-      selectedStation.value = stations.value[0].id
-      await fetchSensors(selectedStation.value)
-    }
-
-  } catch (err) {
-    console.error('❌ Fehler beim Laden der Messstationen:', err)
-  }
-}
-
-// Lade Sensoren für ausgewählte Station
-const fetchSensors = async (stationId) => {
-  try {
-    const res = await axios.get(`${dataApiUrl}/meta/vms?station_id=${stationId}`, {
-      headers: {
-        Authorization: `Bearer ${idToken.value}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    sensors.value = res.data.data.map(s => {
-      const sensorObj = {
-        id: s.Sensor_ID,
-        name: s.Sensor_type,
-        station_id: s.Measuring_station_ID,
-        unit: s.Sensor_unit || 'unbekannt'
-      }
-
-      const excludedKeys = ['Sensor_ID', 'Sensor_type', 'Sensor_unit', 'Measuring_station_ID']
-      for (const [key, value] of Object.entries(s)) {
-        if (!excludedKeys.includes(key)) {
-          const normalizedKey = key.toLowerCase()
-          sensorObj[normalizedKey] = value ?? 'unbekannt'
-        }
-      }
-
-      return sensorObj
-    })
-
-    if (sensors.value.length > 0) {
-      selectedSensor.value = sensors.value[0].id
-    } else {
-      console.warn('⚠️ Keine Sensoren gefunden für diese Station.')
-    }
-
-  } catch (err) {
-    console.error('❌ Fehler beim Laden der Sensoren:', err)
-  }
-}
-
-// Abruf aggregierter Sensordaten für Chart, mit Timeframe-Parameter
-const fetchDeviceShadow = async (sensor, timeframe = 'NOW') => {
-  const sensorType = sensor.name
-  const sensorUnit = sensor.unit || ''
-  const stationId = sensor.station_id
-  const metricType = sensor.name
-
-  try {
-    // Wähle richtigen Endpunkt basierend auf Timeframe
-    const endpoint = timeframe === 'NOW'
-        ? `${dataApiUrl}/data/now`
-        : `${dataApiUrl}/data/aggregate`
-
-    const params = {
-      'node-id': stationId,
-      type: metricType
-    }
-
-    // Füge Timeframe nur hinzu, wenn nicht "NOW"
-    if (timeframe !== 'NOW') {
-      params.timeframe = timeframe
-    }
-
-    const res = await axios.get(endpoint, {
-      headers: {
-        Authorization: `Bearer ${idToken.value}`,
-        'Content-Type': 'application/json'
-      },
-      params,
-      timeout: 10000
-    })
-
-    const rawData = res.data?.data || []
-    if (rawData.length === 0) {
-      console.warn('Keine Daten erhalten für Sensor und Timeframe')
-      return
-    }
-
-    // Labels abhängig vom Timeframe formatieren
-    const labels = rawData.map(entry => {
-      switch (timeframe) {
-        case 'NOW':
-          return new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        case 'DAYS':
-          return `${entry.year}-${String(entry.month).padStart(2,'0')}-${String(entry.day).padStart(2,'0')}`
-        case 'MONTHS':
-          return `${entry.year}-${String(entry.month).padStart(2,'0')}`
-        case 'YEARS':
-          return `${entry.year}`
-        default:
-          return entry.timestamp
-      }
-    })
-
-    const dataPoints = rawData.map(entry => entry.value)
-
-    lastSeen.value = rawData[rawData.length - 1]?.timestamp || null
-
-    if (chartInstance) {
-      chartInstance.data.labels = labels
-      chartInstance.data.datasets[0].data = dataPoints
-      chartInstance.data.datasets[0].label = metricType
-      chartInstance.options.scales.y.title.text = `${sensorType} (${sensorUnit})`
-      chartInstance.update()
-    } else {
-      chartInstance = new Chart(chartRef.value, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label: metricType,
-            data: dataPoints,
-            borderWidth: 2,
-            tension: 0.3,
-            fill: true,
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            pointBackgroundColor: 'rgba(75, 192, 192, 1)'
-          }]
-        },
-        options: {
-          responsive: true,
-          animation: false,
-          scales: {
-            x: { title: { display: true, text: 'Zeit' } },
-            y: {
-              title: {
-                display: true,
-                text: `${sensorType} (${sensorUnit})`
-              }
-            }
-          },
-          plugins: {
-            legend: { labels: { font: { size: 14 } } }
-          }
-        }
-      })
-    }
-
-  } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      console.error('Timeout beim API-Abruf:', error.message)
-    } else {
-      console.error('❌ Fehler beim Abrufen der Sensordaten:', error)
-    }
-  }
-}
-
-
-// MQTT-Verbindung mit AWS IoT über PubSub
+// AWS PubSub MQTT Setup
 const pubsub = new PubSub({
   region: 'eu-central-1',
   endpoint: 'wss://a2tnej84qk5j60-ats.iot.eu-central-1.amazonaws.com/mqtt',
@@ -315,106 +42,222 @@ const pubsub = new PubSub({
   }
 })
 
-// Anfrage an ESP32 senden
-const sendRequest = async () => {
-  try {
-    await pubsub.publish({
-      topics: 'esp32/requestDistance',
-      message: { command: 'getDistance' }
-    })
-  } catch (error) {
-    console.error('❌ Fehler beim Senden der Anfrage:', error)
+// Vessels holen
+const fetchVessels = async () => {
+  const session = await fetchAuthSession()
+  idToken.value = session.tokens?.idToken?.toString()
+
+  const res = await axios.get(`${dataApiUrl}/meta/vms`, {
+    headers: { Authorization: `Bearer ${idToken.value}` }
+  })
+
+  const resTimeframes = await axios.get(`${dataApiUrl}/meta/app/timeframe`, {
+    headers: { Authorization: `Bearer ${idToken.value}` }
+  })
+
+  timeframes.value = resTimeframes.data.timeframes
+  selectedTimeframe.value = timeframes.value[0] ?? null
+
+  vessels.value = res.data.data.map(v => ({
+    id: parseInt(v.Vessel_ID, 10),
+    name: v.Vessel_location
+  }))
+
+  if (vessels.value.length > 0) {
+    selectedVessel.value = vessels.value[0].id
+    await fetchStations(selectedVessel.value)
   }
 }
 
-// Initialisierung bei Komponenteneinbindung
-onMounted(async () => {
-  try {
-    const session = await fetchAuthSession()
-    idToken.value = session.tokens?.idToken?.toString()
+// Stations holen
+const fetchStations = async (vesselId) => {
+  const res = await axios.get(`${dataApiUrl}/meta/vms?vessel_id=${vesselId}`, {
+    headers: { Authorization: `Bearer ${idToken.value}` }
+  })
 
-    await fetchVessels()
+  stations.value = res.data.data.map(station => ({
+    id: station.Measuring_station_ID,
+    name: station.Measuring_station_ID,
+    vessel_id: parseInt(vesselId, 10)
+  }))
 
-    /*axios.get(`${dataApiUrl}/data/test`, {
-      headers: {
-        Authorization: `Bearer ${idToken.value}`,
-        'Content-Type': 'application/json'
-      }
-    }).then(response => {
-      console.log('Erfolg:', response.data);
-    }).catch(error => {
-      console.error('Fehler:', error.response?.data ?? error);
-    });*/
+  if (stations.value.length > 0) {
+    selectedStation.value = stations.value[0].id
+    await fetchSensors(selectedStation.value)
+  }
+}
 
+// Sensoren holen
+const fetchSensors = async (stationId) => {
+  const res = await axios.get(`${dataApiUrl}/meta/vms?station_id=${stationId}`, {
+    headers: { Authorization: `Bearer ${idToken.value}` }
+  })
 
+  sensors.value = res.data.data.map(s => ({
+    id: s.Sensor_ID,
+    name: s.Sensor_type,
+    station_id: s.Measuring_station_ID,
+    unit: s.Sensor_unit ?? 'unbekannt'
+  }))
 
+  if (sensors.value.length > 0) {
+    selectedSensor.value = sensors.value[0].id
+  }
+}
 
-    /*axios.get(`${dataApiUrl}/data/cache/aggregate`, {
-      headers: {
-        Authorization: `Bearer ${idToken.value}`,
-        'Content-Type': 'application/json'
+// Daten vom Device Shadow holen
+const fetchDeviceShadow = async (sensor, timeframe = 'NOW') => {
+  if (!chartRef.value) {
+    console.warn("⚠ Chart noch nicht initialisiert.")
+    return
+  }
+
+  const endpoint = timeframe === 'NOW'
+      ? `${dataApiUrl}/data/now`
+      : `${dataApiUrl}/data/aggregate`
+
+  const params = {
+    'node-id': sensor.station_id,
+    type: sensor.name
+  }
+
+  if (timeframe !== 'NOW') {
+    params.timeframe = timeframe
+  }
+
+  const res = await axios.get(endpoint, {
+    headers: { Authorization: `Bearer ${idToken.value}` },
+    params,
+    timeout: 10000
+  })
+
+  const rawData = res.data?.data ?? []
+
+  const labels = rawData.map(entry => {
+    if (timeframe === 'NOW') return new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    if (timeframe === 'DAYS') return `${entry.year}-${String(entry.month).padStart(2, '0')}-${String(entry.day).padStart(2, '0')}`
+    if (timeframe === 'MONTHS') return `${entry.year}-${String(entry.month).padStart(2, '0')}`
+    if (timeframe === 'YEARS') return `${entry.year}`
+    return entry.timestamp
+  })
+
+  const dataPoints = rawData.map(entry => entry.value)
+
+  if (!chartInstance) {
+    chartInstance = new Chart(chartRef.value, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: sensor.name,
+          data: dataPoints,
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true,  // Fläche unter der Linie ausfüllen
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Transparente Füllfarbe
+          borderColor: 'rgba(75, 192, 192, 1)',        // Linienfarbe
+          pointBackgroundColor: 'rgba(75, 192, 192, 1)' // Punktfarbe
+        }]
       },
-      params: {
-        nodeId: 'hydronode-1',
-        metricType: 'temperature',
-        timeframe: 'DAYS'
+      options: {
+        responsive: true,
+        animation: false,
+        scales: {
+          x: { title: { display: true, text: 'Zeit' } },
+          y: {
+            title: {
+              display: true,
+              text: `${sensor.name} (${sensor.unit})`
+            }
+          }
+        },
+        plugins: {
+          legend: { labels: { font: { size: 14 } } }
+        }
       }
     })
-        .then(response => {
-          console.log('Erfolg:', response.data);
-        })
-        .catch(error => {
-          console.error('Fehler:', error);
-        });*/
+  } else {
+    chartInstance.data.labels = labels
+    chartInstance.data.datasets[0].data = dataPoints
+    chartInstance.data.datasets[0].label = sensor.name
+    chartInstance.options.scales.y.title.text = `${sensor.name} (${sensor.unit})`
+    chartInstance.update()
+  }
 
-    if (selectedSensor.value && selectedTimeframe.value) {
+  if (rawData.length > 0) {
+    lastSeen.value = rawData[rawData.length - 1]?.timestamp ?? null
+  }
+}
+
+
+// MQTT Request senden
+const sendRequest = async () => {
+  const sensorMeta = sensors.value.find(s => s.id === selectedSensor.value)
+  const sensorType = sensorMeta?.name ?? 'distance'
+
+  await pubsub.publish({
+    topics: 'esp32/requestDistance',
+    message: { command: 'getDistance', sensor: sensorType }
+  })
+
+  console.log(`MQTT request gesendet für Sensor: ${sensorType}`)
+}
+
+// Alle Watcher:
+watch(selectedVessel, async (newVal) => {
+  if (newVal !== null && !isNaN(newVal)) await fetchStations(newVal)
+})
+
+watch(selectedStation, async (newVal) => {
+  if (newVal) await fetchSensors(newVal)
+})
+
+watch([selectedSensor, selectedTimeframe], async ([newSensor, newTimeframe]) => {
+  const sensorMeta = sensors.value.find(s => s.id === newSensor)
+  if (sensorMeta && newTimeframe && chartRef.value) {
+    await fetchDeviceShadow(sensorMeta, newTimeframe)
+  }
+})
+
+// Initialisierung
+onMounted(async () => {
+  try {
+    await fetchVessels()
+
+    await nextTick()
+
+    chartIntervalId = setInterval(async () => {
       const sensorMeta = sensors.value.find(s => s.id === selectedSensor.value)
-      if (sensorMeta) {
+      if (sensorMeta && selectedTimeframe.value && chartRef.value) {
         await fetchDeviceShadow(sensorMeta, selectedTimeframe.value)
-      }
-    }
-
-    // Daten in regelmäßigen Abständen aktualisieren (Sensor + Timeframe)
-    chartIntervalId = setInterval(() => {
-      const sensorMeta = sensors.value.find(s => s.id === selectedSensor.value)
-      if (sensorMeta && selectedTimeframe.value) {
-        fetchDeviceShadow(sensorMeta, selectedTimeframe.value)
-        sendRequest()
+        await sendRequest()
       }
     }, 2000)
 
     sendRequest()
 
-    // MQTT-Subscription
     pubsub.subscribe({ topics: 'esp32/responseDistance' }).subscribe({
       next: (data) => {
-        const distance = parseFloat(data?.distance)
-        if (!isNaN(distance)) {
-          currentValue.value = `${distance} mm`
+        const value = parseFloat(data?.value)
+        const sensor = data?.sensor
+        if (!isNaN(value)) {
+          currentValue.value = `${value} (${sensor})`
           connected.value = true
-        } else {
-          currentValue.value = 'unbekannt'
         }
       },
-      error: (error) => {
-        console.error('❌ Fehler beim Empfang:', error)
-      },
-      complete: () => {
-        console.log('MQTT-Abonnement beendet')
-      }
+      error: (error) => console.error('❌ Fehler beim Empfang:', error)
     })
-
   } catch (err) {
     console.error('❌ Fehler beim Initialisieren:', err)
   }
 })
 
-// Aufräumen beim Entfernen der Komponente
 onBeforeUnmount(() => {
   clearInterval(chartIntervalId)
   if (chartInstance) chartInstance.destroy()
 })
 </script>
+
 
 
 <template>
